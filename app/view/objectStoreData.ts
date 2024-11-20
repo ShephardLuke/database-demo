@@ -1,4 +1,4 @@
-export default class ObjectStoreAll {
+export default class ObjectStoreData {
     name: String;
     all: IDBRequest<any[]>;
 

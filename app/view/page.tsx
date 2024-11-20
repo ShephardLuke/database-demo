@@ -1,12 +1,18 @@
 import { Suspense } from "react";
-import Database from "./database";
+import DatabaseDisplay from "./databaseDisplay";
+import Footer from "../footer/footer";
 
 
 export default function View() {
     
     return (
-        <Suspense>
-            <Database></Database>
-        </Suspense>
+        <>
+            <div className="text-center">
+                <Suspense>
+                    <DatabaseDisplay></DatabaseDisplay>
+                </Suspense>
+                <Footer></Footer>
+            </div>
+        </>
     )
 }

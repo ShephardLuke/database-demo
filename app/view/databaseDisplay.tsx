@@ -3,10 +3,10 @@
 import { useSearchParams } from "next/navigation";
 import Record from "../row";
 import { useEffect, useState } from "react";
-import ObjectStore from "./objectStore";
-import ObjectStoreAll from "./objectStoreAll";
+import ObjectStore from "./objectStoreDisplay";
+import ObjectStoreAll from "./objectStoreData";
 
-export default function Database() {
+export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
     let searchName = searchParams.get("database");
     const [databaseName, setDatabaseName] = useState("Database Not Found.")
