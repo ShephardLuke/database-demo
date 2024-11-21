@@ -20,6 +20,24 @@ export default function ChooseDatabase() {
         getDatabases()
     }, [])
 
+    function newDatabase() {
+        let name = prompt("Name: ") as string;
+        let request = window.indexedDB.open(name)
+        request.onerror = (event) => {
+
+        }
+        request.onsuccess = (event) => {
+            request.result.close()
+            
+            async function getDatabases() {
+                const databases = await indexedDB.databases()
+                setDatabases(databases);
+            }
+    
+            getDatabases()
+        }
+    }
+
     return (
         <>
             <div className="text-center">
@@ -30,6 +48,7 @@ export default function ChooseDatabase() {
                 <div className="flex flex-col">
                     {databaseSelect}
                 </div> 
+                <button className="bg-blue-500 hover:bg-blue-400 p-2 m-5" onClick={newDatabase}>New Database</button>
             </div>
             <Footer></Footer>
         </>

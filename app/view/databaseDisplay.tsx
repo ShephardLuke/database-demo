@@ -10,12 +10,9 @@ export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
     let searchName = searchParams.get("database");
     const [databaseName, setDatabaseName] = useState("Database Not Found.")
+    const [databaseVersion, setDatabaseVersion] = useState(0);
 
-
-    const [objectStores, setObjectStores] = useState<ObjectStoreAll[]>([]);
-    console.log(objectStores)
-
-    let objectStoreViews = objectStores.map(objectStore => <ObjectStore key={objectStores.indexOf(objectStore)} objectStore={objectStore}></ObjectStore>) 
+    const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
 
     useEffect(() => {
         async function getObjectStores() {
@@ -43,14 +40,8 @@ export default function DatabaseDisplay() {
             }
 
             request.onsuccess = (event) => {
-                let allObjectStores: ObjectStoreAll[] = []
-                const db = request.result;
-                for (let name of [... request.result.objectStoreNames]) {
-                    const transaction = db.transaction([name]);
-                    const objectStore = transaction.objectStore(name);
-                    allObjectStores.push(new ObjectStoreAll(name, objectStore.getAll()));
-                }
-                setObjectStores(allObjectStores)
+                setDatabaseVersion(request.result.version)
+                updateObjectStores(request.result)
             }
             
         }
@@ -58,11 +49,60 @@ export default function DatabaseDisplay() {
         getObjectStores()
     }, [])
 
+    function updateObjectStores(db: IDBDatabase) {
+        let allObjectStores: JSX.Element[] = [];
+        console.log("ran")
+        for (let name of [... db.objectStoreNames]) {
+            allObjectStores.push(<ObjectStore key={name} db={db} name={name}></ObjectStore>)
+        }
+        setObjectStores(allObjectStores)
+    }
+
+    function newObjectStore() {
+
+        let newVersion = databaseVersion + 1;
+    
+
+        const request = window.indexedDB.open(databaseName, newVersion);
+        console.log("requested")
+        request.onerror = (event) => {
+            console.error(event)
+        }
+
+        request.onsuccess = (event) => {
+            setDatabaseVersion(request.result.version)
+            updateObjectStores(request.result)
+        }
+
+        request.onupgradeneeded = (event) => {
+            let newdb = request.result
+            let name = prompt("Name: ") as string;
+
+            let objectStore = newdb.createObjectStore(name, { keyPath: "id" as string, autoIncrement: true})
+
+            let indexNum = 3
+            let indexPrompt = Number(prompt("Indexes: "));
+
+            if (!isNaN(indexPrompt)) {
+                indexNum = Math.min(indexPrompt, 10)
+            }
+
+            for (let i = 0; i < indexPrompt; i++) {
+                let index = prompt("Index " + i + ": ") as string;
+                objectStore.createIndex(index, index, {unique: false})
+            }
+
+    
+        }
+
+    }
+
 
     return (
         <>
-            <p className="text-center">{databaseName}</p>
-            Object Stores: {objectStoreViews}
+            <p className="text-center">{databaseName}, Version {databaseVersion}</p>
+            Object Stores: {objectStores}
+            <button className="bg-blue-500 hover:bg-blue-400 p-2 m-5" onClick={newObjectStore}>New Object Store</button>
         </>
     )
 }
