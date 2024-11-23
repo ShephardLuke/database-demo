@@ -15,6 +15,9 @@ export default function DatabaseDisplay() {
 
     const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
 
+    let objectStoreNames = objectStores.map(objectStore => objectStore.props.name);
+    console.log(databaseName)
+
     useEffect(() => {
         async function getObjectStores() {
             if (!searchName) {
@@ -52,6 +55,7 @@ export default function DatabaseDisplay() {
 
     function updateObjectStores(db: IDBDatabase) {
         if (db.objectStoreNames.length == 0) {
+            setObjectStores([])
             db.close()
             return;
         }
@@ -64,29 +68,42 @@ export default function DatabaseDisplay() {
         for (let name of [... db.objectStoreNames]) {
             const objectStore = transaction.objectStore(name);
 
-            allObjectStores.push(<ObjectStore key={name} idbRequest={objectStore.getAll()}></ObjectStore>)
+            allObjectStores.push(<ObjectStore key={name} idbRequest={objectStore.getAll()} deleteObjectStore={deleteObjectStore}></ObjectStore>)
         }  
         setObjectStores(allObjectStores)
         transaction.oncomplete = (event) => {
             db.close()
         }     
+        transaction.onerror = (event) => {
+            db.close()
+        }
     }
 
-    function newObjectStore() {
-
+    function openDatabase() {
         let newVersion = databaseVersion + 1;
     
 
         const request = window.indexedDB.open(databaseName, newVersion);
-        console.log("requested")
+
+        console.log(databaseName, newVersion)
+
+        request.onsuccess = (event) => {
+            console.log(request)
+            setDatabaseVersion(request.result.version)
+            updateObjectStores(request.result)
+        }
+
         request.onerror = (event) => {
             console.error(event)
         }
 
-        request.onsuccess = (event) => {
-            setDatabaseVersion(request.result.version)
-            updateObjectStores(request.result)
-        }
+        return request
+    }
+
+    function newObjectStore() {
+
+        let request = openDatabase()
+
 
         request.onupgradeneeded = (event) => {
             let newdb = request.result
@@ -106,15 +123,29 @@ export default function DatabaseDisplay() {
                 objectStore.createIndex(index, index, {unique: false})
             }
 
-    
         }
+    }
 
+    function deleteObjectStore(store: string) {
+        console.log(databaseName)
+        // let request = openDatabase()
+
+        // request.onupgradeneeded = (event) => {
+        //     console.log("RAN")
+        //     let newdb = request.result;
+        //     console.log(event.oldVersion);
+
+        //     newdb.deleteObjectStore(store)
+        // }
     }
 
 
     return (
         <>  
-            <p className="text-center text-4xl font-bold p-10 whitespace-pre">{databaseName}, Version {databaseVersion}</p>
+            <div className="p-10">
+                <p className="text-center text-4xl font-bold underline whitespace-pre">{databaseName}</p>
+                <p className="text-3xl p-5">(Version {databaseVersion})</p>
+            </div>
             <p className="text-xl">Object Stores ({objectStores.length}):</p>
             <PrimaryButton text="New Object Store" clicked={newObjectStore}/>
             {objectStores}

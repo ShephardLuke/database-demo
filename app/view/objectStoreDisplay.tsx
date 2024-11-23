@@ -3,11 +3,11 @@ import Record from "./record";
 import PrimaryButton from "../buttons/primaryButton";
 import DeleteButton from "../buttons/deleteButton";
 
-export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest<any[]>}) {
+export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idbRequest: IDBRequest<any[]>, deleteObjectStore: Function}) {
 
     const [keys, setKeys] = useState<string[]>([]);
     const [indexes, setIndexes] = useState<string[]>([]);
-    const [data, setData] = useState<unknown[][]>([]);
+    const [data, setData] = useState<object[]>([]);
 
     useEffect(() => {
         idbRequest.onsuccess = (event) => {
@@ -19,7 +19,7 @@ export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest
             
             setKeys(typeof source.keyPath == "string" ? [source.keyPath] : source.keyPath)
             setIndexes(indexes)
-            setData(result.map(data => Object.values(data)));
+            setData(result);
         }
     
     }, [])
@@ -31,21 +31,29 @@ export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest
 
     let recordRows = data.map(record => <Record key={data.indexOf(record)} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)
 
-    let deleteButtons = data.map(record => <DeleteButton key={data.indexOf(record)} text="Delete Record" clicked={() => {console.log(record)}}/>)
+    let deleteButtons = data.map(record => <DeleteButton key={data.indexOf(record)} text="Delete Record" clicked={() => {deleteRecord(record)}}/>)
     
-    function newRecord() {
+
+    function openDatabase() {
         let source = idbRequest.source as IDBObjectStore
         const request = window.indexedDB.open(source.transaction.db.name);
 
         request.onerror = (event) => {
             console.error(event)
         }
+        
+        return request;
+    }
+
+    function newRecord() {
+        const request = openDatabase();
 
         request.onsuccess = (event) => {
+            let name = (idbRequest.source as IDBObjectStore).name
             const db = request.result
 
-            const transaction = db.transaction([source.name], "readwrite")
-            const objectStore = transaction.objectStore(source.name);
+            const transaction = db.transaction([name], "readwrite")
+            const objectStore = transaction.objectStore(name);
     
             let newData: any = {}
             for (let i = 0; i < indexes.length; i++) {
@@ -54,9 +62,8 @@ export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest
     
             const newRequest = objectStore.add(newData)
             newRequest.onsuccess = (event) => {
-                let newArr = Object.values(newData) as unknown[]
-                newArr.push(newRequest.result as string)
-                setData([...data, newArr])
+                newData[keys[0]] = newRequest.result;
+                setData([...data, newData])
             }
 
             transaction.oncomplete = (event) => {
@@ -64,16 +71,36 @@ export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest
             }
         }
 
+    }
 
+    function deleteRecord(record: any) {
+        console.log(record, keys[0])
+        const request = openDatabase();
 
+        request.onsuccess = (event) => {
+            let name = (idbRequest.source as IDBObjectStore).name
+            const db = request.result
+
+            const transaction = db.transaction([name], "readwrite")
+            const objectStore = transaction.objectStore(name);
+
+            objectStore.delete(record[keys[0]]) // wont work for multiple keys (not supported yet)
+
+            transaction.oncomplete = () => {
+                let newData = [... data];
+                newData.splice(data.indexOf(record), 1);
+                db.close()
+                setData(newData)
+            }
+        }
     }
 
     return (
         <div className="mt-40 pb-10">
             <p className="text-xl font-bold underline">{(idbRequest.source as IDBObjectStore).name}</p>
             <div className="flex justify-center">
-                <PrimaryButton text="New Record" clicked={newRecord}/>
-                <DeleteButton text="Delete Object Store" clicked={() => {console.log("delete object store")}}/>
+                <PrimaryButton classAdd="flex-1 max-w-40" text="New Record" clicked={newRecord}/>
+                <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={deleteObjectStore}/>
             </div>
             <div className="flex">
                 <table className="table-fixed w-full">
