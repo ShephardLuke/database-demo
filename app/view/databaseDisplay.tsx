@@ -5,6 +5,7 @@ import Record from "../row";
 import { useEffect, useState } from "react";
 import ObjectStore from "./objectStoreDisplay";
 import ObjectStoreData from "./objectStoreData";
+import PrimaryButton from "../buttons/primaryButton";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -101,7 +102,7 @@ export default function DatabaseDisplay() {
             }
 
             for (let i = 0; i < indexPrompt; i++) {
-                let index = prompt("Index " + i + ": ") as string;
+                let index = prompt("Index " + (i + 1) + ": ") as string;
                 objectStore.createIndex(index, index, {unique: false})
             }
 
@@ -113,12 +114,10 @@ export default function DatabaseDisplay() {
 
     return (
         <>  
-            <div>
-                <p className="text-center text-4xl font-bold p-10">{databaseName}, Version {databaseVersion}</p>
-                <p className="text-xl">Object Stores ({objectStores.length}):</p>
-                {objectStores}
-            </div>
-            <button className="bg-blue-500 hover:bg-blue-400 m-5" onClick={newObjectStore}>New Object Store</button>
+            <p className="text-center text-4xl font-bold p-10 whitespace-pre">{databaseName}, Version {databaseVersion}</p>
+            <p className="text-xl">Object Stores ({objectStores.length}):</p>
+            <PrimaryButton text="New Object Store" clicked={newObjectStore}/>
+            {objectStores}
         </>
     )
 }

@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Footer from "./footer/footer";
+import DbLink from "./dbLink";
 
 export default function ChooseDatabase() {
 
     const [databases, setDatabases] = useState<IDBDatabaseInfo[]>([]);
 
-    const databaseSelect = databases.map(database => <Link href={{pathname: "/view", query: {database: database.name }}} key={databases.indexOf(database)}>{database.name}</Link>)
+    const databaseSelect = databases.map(database => <DbLink key={databases.indexOf(database)} name={database.name ? database.name : "Unnamed"}></DbLink>)
     console.log(databases)
 
     useEffect(() => {
@@ -21,8 +22,12 @@ export default function ChooseDatabase() {
     }, [])
 
     function newDatabase() {
-        let name = prompt("Name: ") as string;
-        let request = window.indexedDB.open(name)
+        let typedName = prompt("Name: ");
+        if (!typedName || typedName.trim().length == 0) {
+            return;
+        }
+        let name = typedName.trim();
+        let request = window.indexedDB.open(name);
         request.onerror = (event) => {
 
         }
@@ -30,11 +35,11 @@ export default function ChooseDatabase() {
             request.result.close()
             
             async function getDatabases() {
-                const databases = await indexedDB.databases()
+                const databases = await indexedDB.databases();
                 setDatabases(databases);
             }
     
-            getDatabases()
+            getDatabases();
         }
     }
 

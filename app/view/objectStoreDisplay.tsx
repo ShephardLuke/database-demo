@@ -1,6 +1,7 @@
-import { ReactNode, useEffect, useState } from "react";
-import ObjectStoreData from "./objectStoreData";
+import { useEffect, useState } from "react";
 import Record from "./record";
+import PrimaryButton from "../buttons/primaryButton";
+import DeleteButton from "../buttons/deleteButton";
 
 export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest<any[]>}) {
 
@@ -29,6 +30,8 @@ export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest
     let keyHeadings = keys.map(key => <th key={keys.indexOf(key)} className={`border-solid border-4 underline`}>{key}</th>)
 
     let recordRows = data.map(record => <Record key={data.indexOf(record)} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)
+
+    let deleteButtons = data.map(record => <DeleteButton key={data.indexOf(record)} text="Delete Record" clicked={() => {console.log(record)}}/>)
     
     function newRecord() {
         let source = idbRequest.source as IDBObjectStore
@@ -66,20 +69,30 @@ export default function ObjectStoreDisplay({idbRequest}: {idbRequest: IDBRequest
     }
 
     return (
-        <div className="mt-10 border-4">
+        <div className="mt-40 pb-10">
             <p className="text-xl font-bold underline">{(idbRequest.source as IDBObjectStore).name}</p>
-            <table className="table-fixed w-full">
-                <thead>
-                    <tr>
-                        {indexHeadings}
-                        {keyHeadings}
-                    </tr>
-                </thead>
-                <tbody>
-                    {recordRows}
-                </tbody>
-            </table>
-            <button className="bg-blue-500 hover:bg-blue-400 p-2 m-5" onClick={newRecord}>Insert New Record</button>
+            <div className="flex justify-center">
+                <PrimaryButton text="New Record" clicked={newRecord}/>
+                <DeleteButton text="Delete Object Store" clicked={() => {console.log("delete object store")}}/>
+            </div>
+            <div className="flex">
+                <table className="table-fixed w-full">
+                    <thead className="h-2">
+                        <tr>
+                            {indexHeadings}
+                            {keyHeadings}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {recordRows}
+                    </tbody>
+                </table>
+                <div>
+                <div className="flex flex-col pt-8">
+                    {deleteButtons}
+                </div>
+                </div>
+            </div>
         </div>
     )
 }
