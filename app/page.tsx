@@ -8,7 +8,7 @@ export default function ChooseDatabase() {
 
     const [databases, setDatabases] = useState<IDBDatabaseInfo[]>([]);
 
-    const databaseSelect = databases.map(database => <Link href={{pathname: "/view", query: {database: database.name }}} key={databases.indexOf(database)}>{databases.indexOf(database) + 1}: {database.name}</Link>)
+    const databaseSelect = databases.map(database => <Link href={{pathname: "/view", query: {database: database.name }}} key={databases.indexOf(database)}>{database.name}</Link>)
     console.log(databases)
 
     useEffect(() => {

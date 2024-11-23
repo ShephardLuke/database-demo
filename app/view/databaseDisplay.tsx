@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Record from "../row";
 import { useEffect, useState } from "react";
 import ObjectStore from "./objectStoreDisplay";
-import ObjectStoreAll from "./objectStoreData";
+import ObjectStoreData from "./objectStoreData";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -50,12 +50,25 @@ export default function DatabaseDisplay() {
     }, [])
 
     function updateObjectStores(db: IDBDatabase) {
+        if (db.objectStoreNames.length == 0) {
+            db.close()
+            return;
+        }
         let allObjectStores: JSX.Element[] = [];
+        const transaction = db.transaction([... db.objectStoreNames]);
+
+
+
         console.log("ran")
         for (let name of [... db.objectStoreNames]) {
-            allObjectStores.push(<ObjectStore key={name} db={db} name={name}></ObjectStore>)
-        }
+            const objectStore = transaction.objectStore(name);
+
+            allObjectStores.push(<ObjectStore key={name} idbRequest={objectStore.getAll()}></ObjectStore>)
+        }  
         setObjectStores(allObjectStores)
+        transaction.oncomplete = (event) => {
+            db.close()
+        }     
     }
 
     function newObjectStore() {
@@ -99,10 +112,13 @@ export default function DatabaseDisplay() {
 
 
     return (
-        <>
-            <p className="text-center">{databaseName}, Version {databaseVersion}</p>
-            Object Stores: {objectStores}
-            <button className="bg-blue-500 hover:bg-blue-400 p-2 m-5" onClick={newObjectStore}>New Object Store</button>
+        <>  
+            <div>
+                <p className="text-center text-4xl font-bold p-10">{databaseName}, Version {databaseVersion}</p>
+                <p className="text-xl">Object Stores ({objectStores.length}):</p>
+                {objectStores}
+            </div>
+            <button className="bg-blue-500 hover:bg-blue-400 m-5" onClick={newObjectStore}>New Object Store</button>
         </>
     )
 }
