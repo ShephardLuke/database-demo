@@ -29,9 +29,19 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     let indexHeadings = indexes.map(index => <th key={indexes.indexOf(index)} className="border-solid border-4">{index}</th>)
     let keyHeadings = keys.map(key => <th key={keys.indexOf(key)} className={`border-solid border-4 underline`}>{key}</th>)
 
-    let recordRows = data.map(record => <Record key={data.indexOf(record)} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)
+    let recordRows = data.map(record => <Record key={"record"+(record as any)[keys[0]]} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
-    let deleteButtons = data.map(record => <DeleteButton key={data.indexOf(record)} text="Delete Record" clicked={() => {deleteRecord(record)}}/>)
+    let inputs = [];
+    for (let index of indexes) {
+        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><input className="text-center border-2"></input></td>)
+    }for (let key of keys) {
+        inputs.push(<td className="border-2" key={key} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + key}><input className="text-center border-2"></input></td>)
+    }
+
+    recordRows.push(<tr className="border-2" key={recordRows.length}>{inputs}</tr>)
+
+    let deleteButtons = data.map(record => <DeleteButton key={(record as any)[keys[0]]} text="Delete Record" clicked={() => {deleteRecord(record)}}/>)
+    deleteButtons.push(<PrimaryButton key={"new"} text="New Record" clicked={() => {console.log("uuihuih")}}></PrimaryButton>)
     
 
     function openDatabase() {

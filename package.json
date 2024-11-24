@@ -1,6 +1,6 @@
 {
   "name": "database-demo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -26,5 +26,5 @@
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "index.js",
   "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }

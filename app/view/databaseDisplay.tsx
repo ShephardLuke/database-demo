@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 import Record from "../row";
 import { useEffect, useState } from "react";
 import ObjectStore from "./objectStoreDisplay";
-import ObjectStoreData from "./objectStoreData";
 import PrimaryButton from "../buttons/primaryButton";
 
 export default function DatabaseDisplay() {
