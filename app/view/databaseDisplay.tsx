@@ -10,7 +10,8 @@ import PrimaryButton from "../buttons/primaryButton";
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
     let searchName = searchParams.get("database");
-    const [databaseName, setDatabaseName] = useState("Database Not Found.")
+    const [databaseName, setDatabaseName] = useState("Database Not Found")
+    const [foundDatabase, setFoundDatabase] = useState(false);
     const [databaseVersion, setDatabaseVersion] = useState(0);
 
     const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
@@ -37,21 +38,42 @@ export default function DatabaseDisplay() {
             }
 
             setDatabaseName(searchName);
-
-            const request = window.indexedDB.open(searchName);
-            request.onerror = (event) => {
-                console.error(event)
-            }
-
-            request.onsuccess = (event) => {
-                setDatabaseVersion(request.result.version)
-                updateObjectStores(request.result)
-            }
-            
+            setFoundDatabase(true)
         }
 
         getObjectStores()
     }, [])
+
+    useEffect(() => {
+        if (!foundDatabase) {
+            return;
+        }
+        const request = window.indexedDB.open(databaseName);
+
+        request.onerror = (event) => {
+            console.error(event)
+        }
+
+        request.onsuccess = (event) => {
+            setDatabaseVersion(request.result.version)
+            updateObjectStores(request.result)
+        }
+    }, [foundDatabase])
+
+    useEffect(() => {
+        if (!foundDatabase) {
+            return;
+        }
+        const request = window.indexedDB.open(databaseName);
+
+        request.onerror = (event) => {
+            console.error(event)
+        }
+
+        request.onsuccess = (event) => {
+            updateObjectStores(request.result)
+        }
+    }, [databaseName, databaseVersion])
 
     function updateObjectStores(db: IDBDatabase) {
         if (db.objectStoreNames.length == 0) {
@@ -62,9 +84,6 @@ export default function DatabaseDisplay() {
         let allObjectStores: JSX.Element[] = [];
         const transaction = db.transaction([... db.objectStoreNames]);
 
-
-
-        console.log("ran")
         for (let name of [... db.objectStoreNames]) {
             const objectStore = transaction.objectStore(name);
 
@@ -82,7 +101,6 @@ export default function DatabaseDisplay() {
     function openDatabase() {
         let newVersion = databaseVersion + 1;
     
-
         const request = window.indexedDB.open(databaseName, newVersion);
 
         console.log(databaseName, newVersion)
@@ -101,6 +119,11 @@ export default function DatabaseDisplay() {
     }
 
     function newObjectStore() {
+
+        if (!foundDatabase) {
+            console.log("no database")
+            return;
+        }
 
         let request = openDatabase()
 
@@ -127,16 +150,21 @@ export default function DatabaseDisplay() {
     }
 
     function deleteObjectStore(store: string) {
+        if (!foundDatabase) {
+            console.log("no database")
+            return;
+        }
+
         console.log(databaseName)
-        // let request = openDatabase()
+        let request = openDatabase()
 
-        // request.onupgradeneeded = (event) => {
-        //     console.log("RAN")
-        //     let newdb = request.result;
-        //     console.log(event.oldVersion);
+        request.onupgradeneeded = (event) => {
+            console.log("RAN")
+            let newdb = request.result;
+            console.log(event.oldVersion);
 
-        //     newdb.deleteObjectStore(store)
-        // }
+            newdb.deleteObjectStore(store)
+        }
     }
 
 

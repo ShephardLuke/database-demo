@@ -100,7 +100,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             <p className="text-xl font-bold underline">{(idbRequest.source as IDBObjectStore).name}</p>
             <div className="flex justify-center">
                 <PrimaryButton classAdd="flex-1 max-w-40" text="New Record" clicked={newRecord}/>
-                <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={deleteObjectStore}/>
+                <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore((idbRequest.source as IDBObjectStore).name)}/>
             </div>
             <div className="flex">
                 <table className="table-fixed w-full">

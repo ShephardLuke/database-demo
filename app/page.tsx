@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Footer from "./footer/footer";
 import DbLink from "./dbLink";
+import PrimaryButton from "./buttons/primaryButton";
 
 export default function ChooseDatabase() {
 
     const [databases, setDatabases] = useState<IDBDatabaseInfo[]>([]);
 
-    const databaseSelect = databases.map(database => <DbLink key={databases.indexOf(database)} name={database.name ? database.name : "Unnamed"}></DbLink>)
+    const databaseSelect = databases.map(database => <DbLink key={database.name} database={database} deleteDatabase={deleteDatabase}></DbLink>)
     console.log(databases)
 
     useEffect(() => {
@@ -43,17 +44,43 @@ export default function ChooseDatabase() {
         }
     }
 
+    function deleteDatabase(database: IDBDatabaseInfo) {
+        if (!database.name) {
+            return;
+        }
+
+        const DBDeleteRequest = window.indexedDB.deleteDatabase(database.name);
+
+        DBDeleteRequest.onerror = (event) => {
+            console.error(event)
+        }
+
+        DBDeleteRequest.onsuccess = (event) => {
+            let newDatabases = [... databases];
+            let foundName
+            newDatabases.splice(newDatabases.indexOf(database), 1)
+            setDatabases(newDatabases)
+        }
+    }
+
     return (
         <>
             <div className="text-center">
-                <p>
-                    Found databases: {databases?.length}    
-                </p>   
+                <p className="p-10">Found databases: {databases?.length}</p>   
+                <PrimaryButton text="New Database" clicked={newDatabase}></PrimaryButton>
                 <br/>
-                <div className="flex flex-col">
-                    {databaseSelect}
-                </div> 
-                <button className="bg-blue-500 hover:bg-blue-400 p-2 m-5" onClick={newDatabase}>New Database</button>
+                <table className="table-fixed w-full border-2">
+                    <thead className="border-2">
+                        <tr>
+                            <th>Database Name</th>
+                            <th>Object Stores</th>
+                            <th>Delete Database</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {databaseSelect}
+                    </tbody> 
+                </table>
             </div>
             <Footer></Footer>
         </>
