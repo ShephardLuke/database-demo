@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import DeleteButton from "../buttons/deleteButton";
 
 export default function Record({data}: {data: object}) {
     let keyCounter = -1

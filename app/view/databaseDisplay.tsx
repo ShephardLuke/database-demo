@@ -1,7 +1,6 @@
 'use client'
 
 import { useSearchParams } from "next/navigation";
-import Record from "../row";
 import { useEffect, useState } from "react";
 import ObjectStore from "./objectStoreDisplay";
 import PrimaryButton from "../buttons/primaryButton";
@@ -14,9 +13,6 @@ export default function DatabaseDisplay() {
     const [databaseVersion, setDatabaseVersion] = useState(0);
 
     const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
-
-    let objectStoreNames = objectStores.map(objectStore => objectStore.props.name);
-    console.log(databaseName)
 
     useEffect(() => {
         async function getObjectStores() {
