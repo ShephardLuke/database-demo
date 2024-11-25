@@ -14,13 +14,13 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
 
     let indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
-    let headings = indexOrder.map(index => <th key={indexes.indexOf(index)} className={"border-solid border-4" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
+    let headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid border-4" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
 
     let recordRows = data.map(record => <Record key={"record"+(record as any)[keys[0]]} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
     let inputs = []; // Add inputs for adding a new record
     for (let index of indexOrder) {
-        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><DatabaseInput placeholder={"Enter " + index + "..."}/></td>)
+        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><DatabaseInput id={index} placeholder={"Enter " + index + "..."}/></td>)
     }
 
     recordRows.push(<tr className="border-2" key={recordRows.length}>{inputs}</tr>)
@@ -65,13 +65,13 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             const objectStore = transaction.objectStore(name);
     
             let newData: any = {}
-            for (let i = 0; i < indexes.length; i++) {
-                newData[indexes[i]] = prompt(indexes[i]) as string;
+            for (let i = 0; i < indexOrder.length; i++) {
+                newData[indexOrder[i]] = prompt(indexOrder[i]) as string;
             }
     
             const newRequest = objectStore.add(newData)
             newRequest.onsuccess = (event) => {
-                newData[keys[0]] = newRequest.result;
+                //newData[keys[0]] = newRequest.result;
                 setData([...data, newData])
             }
 

@@ -3,12 +3,11 @@
 'use client'
 
 import { useSearchParams } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ObjectStore from "./objectStoreDisplay";
 import PrimaryButton from "../buttons/primaryButton";
-import DatabaseIndex from "./table/databaseIndex";
-import DatabaseInput from "./table/databaseInput";
 import ObjectStoreCreation from "./objectStoreCreation";
+import { DBIndex } from "./DBIndex";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -118,7 +117,7 @@ export default function DatabaseDisplay() {
         return request
     }
 
-    function newObjectStore() { // Adds object store to database
+    function newObjectStore(name:string, indexes: DBIndex[]) { // Adds object store to database
 
         if (!foundDatabase) {
             console.log("no database")
@@ -130,20 +129,24 @@ export default function DatabaseDisplay() {
 
         request.onupgradeneeded = (event) => {
             let newdb = request.result
-            let name = prompt("Name: ") as string;
 
-            let objectStore = newdb.createObjectStore(name, { keyPath: "id" as string, autoIncrement: true})
+            let keys = [];
+            let nonKeys = [];
 
-            let indexNum = 3
-            let indexPrompt = Number(prompt("Indexes: "));
-
-            if (!isNaN(indexPrompt)) {
-                indexNum = Math.min(indexPrompt, 10)
+            for (let index of indexes) {
+                if (index.isKey) {
+                    keys.push(index.name);
+                } else {
+                    nonKeys.push(index);
+                }
             }
 
-            for (let i = 0; i < indexPrompt; i++) {
-                let index = prompt("Index " + (i + 1) + ": ") as string;
-                objectStore.createIndex(index, index, {unique: false})
+            console.log(keys, nonKeys)
+
+            let objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys})
+
+            for (let index of nonKeys) {
+                objectStore.createIndex(index.name, index.name, {unique: false})
             }
 
         }
@@ -175,8 +178,7 @@ export default function DatabaseDisplay() {
                 <p className="text-3xl p-5">(Version {databaseVersion})</p>
             </div>
             <p className="text-xl">Object Stores ({objectStores.length} found):</p>
-            <PrimaryButton text="New Object Store" clicked={newObjectStore}/>
-            <ObjectStoreCreation/>
+            <ObjectStoreCreation newObjectStore={newObjectStore}/>
             {objectStores}
         </>
     )
