@@ -11,8 +11,6 @@ export default function ChooseDatabase() { // Displaying every database allowing
     const [databases, setDatabases] = useState<IDBDatabaseInfo[]>([]);
 
     const databaseSelect = databases.map(database => <DbLink key={database.name} database={database} deleteDatabase={deleteDatabase}></DbLink>)
-    console.log(databases)
-
     useEffect(() => { // Get all databases
         async function getDatabases() {
             const databases = await indexedDB.databases()
@@ -23,8 +21,8 @@ export default function ChooseDatabase() { // Displaying every database allowing
     }, [])
 
     function newDatabase() { // Create new database
-        let typedName = prompt("Name: ");
-        if (!typedName || typedName.trim().length == 0) {
+        let typedName = (document.getElementById("inputDatabaseName") as HTMLInputElement).value
+        if (typedName.trim().length == 0) {
             return;
         }
         let name = typedName.trim();
@@ -66,13 +64,13 @@ export default function ChooseDatabase() { // Displaying every database allowing
     return (
         <>
             <div className="text-center">
-                <p className="p-10">Found databases: {databases?.length}</p>   
-                <PrimaryButton text="New Database" clicked={newDatabase}></PrimaryButton>
+                <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
                 <br/>
                 <table className="table-fixed w-full border-2">
                     <thead className="border-2">
                         <tr>
                             <th>Database Name</th>
+                            <th>Database Version</th>
                             <th>Object Stores</th>
                             <th>Delete Database</th>
                         </tr>
@@ -81,6 +79,10 @@ export default function ChooseDatabase() { // Displaying every database allowing
                         {databaseSelect}
                     </tbody> 
                 </table>
+                <div className="text-center">
+                    <input className="border-2" id="inputDatabaseName" placeholder="Enter Name" />
+                    <PrimaryButton text="New Database" clicked={newDatabase}></PrimaryButton>
+                </div>
             </div>
             <Footer></Footer>
         </>

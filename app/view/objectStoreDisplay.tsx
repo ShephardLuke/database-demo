@@ -15,22 +15,26 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     let indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
     let headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid border-4" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
+    headings.push(<th key={"-1"} className="border-solid border-4">Option</th>)
 
-    let recordRows = data.map(record => <Record key={"record"+(record as any)[keys[0]]} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
+    let recordRows = data.map(record => <Record key={"record"+(record as any)[keys[0]]} deleteRecord={deleteRecord} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
     let inputs = []; // Add inputs for adding a new record
     for (let index of indexOrder) {
-        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><DatabaseInput id={index} placeholder={"Enter " + index + "..."}/></td>)
+        inputs.push(<td className="border-2" key={index}><DatabaseInput id={"input" + (idbRequest.source as IDBObjectStore).name + index} placeholder={"Enter " + index + "..."}/></td>)
     }
 
-    recordRows.push(<tr className="border-2" key={recordRows.length}>{inputs}</tr>)
+    recordRows.push(
+        <tr className="border-2" key={recordRows.length}>
+            {inputs}
+            <td><PrimaryButton key={"new"} text="New Record" clicked={newRecord}></PrimaryButton></td>
+        </tr>
+    )
 
-    let deleteButtons = data.map(record => <DeleteButton key={(record as any)[keys[0]]} text="Delete Record" clicked={() => {deleteRecord(record)}}/>) // Button to deletes records
-    deleteButtons.push(<PrimaryButton key={"new"} text="New Record" clicked={() => {console.log("uuihuih")}}></PrimaryButton>)
+    //deleteButtons.push()
     
     useEffect(() => { // Get keys, indexes and records from given request
         idbRequest.onsuccess = (event) => {
-            console.log(idbRequest.result)
             let result = idbRequest.result;
             let source = idbRequest.source as IDBObjectStore
             let indexes = [... source.indexNames];
@@ -65,8 +69,10 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             const objectStore = transaction.objectStore(name);
     
             let newData: any = {}
+            let sourceName = (idbRequest.source as IDBObjectStore).name;
             for (let i = 0; i < indexOrder.length; i++) {
-                newData[indexOrder[i]] = prompt(indexOrder[i]) as string;
+                let element = document.getElementById("input" + sourceName + indexOrder[i]) as HTMLInputElement;
+                newData[indexOrder[i]] = element.value
             }
     
             const newRequest = objectStore.add(newData)
@@ -82,7 +88,6 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     }
 
     function deleteRecord(record: any) { // Removes record from database and internal array
-        console.log(record, keys)
         const request = openDatabase();
 
         request.onsuccess = (event) => {
@@ -94,7 +99,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
 
             let toDelete: IDBValidKey = [];
 
-            if (keys.length == 0) {
+            if (keys.length == 1) {
                 toDelete = record[keys[0]];
             } else {
                 for (let key of keys) {
@@ -117,7 +122,6 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         <div className="mt-40 pb-10">
             <p className="text-xl font-bold underline">{(idbRequest.source as IDBObjectStore).name}</p>
             <div className="flex justify-center">
-                <PrimaryButton classAdd="flex-1 max-w-40" text="New Record" clicked={newRecord}/>
                 <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore((idbRequest.source as IDBObjectStore).name)}/>
             </div>
             <div className="flex">
@@ -131,11 +135,6 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
                         {recordRows}
                     </tbody>
                 </table>
-                <div>
-                <div className="flex flex-col pt-8">
-                    {deleteButtons}
-                </div>
-                </div>
             </div>
         </div>
     )

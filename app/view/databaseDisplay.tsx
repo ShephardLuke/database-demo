@@ -12,10 +12,10 @@ import { DBIndex } from "./DBIndex";
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
     let searchName = searchParams.get("database");
+
     const [databaseName, setDatabaseName] = useState("Database Not Found")
     const [foundDatabase, setFoundDatabase] = useState(false);
     const [databaseVersion, setDatabaseVersion] = useState(0);
-
     const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
 
     useEffect(() => { // Find the database if it exists
@@ -72,6 +72,7 @@ export default function DatabaseDisplay() {
         request.onsuccess = (event) => {
             updateObjectStores(request.result)
         }
+        
     }, [databaseName, databaseVersion])
 
     function updateObjectStores(db: IDBDatabase) { // Create an array to display each object store
@@ -102,10 +103,7 @@ export default function DatabaseDisplay() {
     
         const request = window.indexedDB.open(databaseName, newVersion);
 
-        console.log(databaseName, newVersion)
-
         request.onsuccess = (event) => {
-            console.log(request)
             setDatabaseVersion(request.result.version)
             updateObjectStores(request.result)
         }
@@ -141,8 +139,6 @@ export default function DatabaseDisplay() {
                 }
             }
 
-            console.log(keys, nonKeys)
-
             let objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys})
 
             for (let index of nonKeys) {
@@ -158,13 +154,10 @@ export default function DatabaseDisplay() {
             return;
         }
 
-        console.log(databaseName)
         let request = openDatabase()
 
         request.onupgradeneeded = (event) => {
-            console.log("RAN")
             let newdb = request.result;
-            console.log(event.oldVersion);
 
             newdb.deleteObjectStore(store)
         }
@@ -177,8 +170,8 @@ export default function DatabaseDisplay() {
                 <p className="text-center text-4xl font-bold underline whitespace-pre">{databaseName}</p>
                 <p className="text-3xl p-5">(Version {databaseVersion})</p>
             </div>
-            <p className="text-xl">Object Stores ({objectStores.length} found):</p>
-            <ObjectStoreCreation newObjectStore={newObjectStore}/>
+            <p className="text-xl pb-20">Object Stores ({objectStores.length} found):</p>
+            {<ObjectStoreCreation key={new Date().getTime()} newObjectStore={newObjectStore}/>}
             {objectStores}
         </>
     )
