@@ -3,9 +3,12 @@
 'use client'
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import ObjectStore from "./objectStoreDisplay";
 import PrimaryButton from "../buttons/primaryButton";
+import DatabaseIndex from "./table/databaseIndex";
+import DatabaseInput from "./table/databaseInput";
+import ObjectStoreCreation from "./objectStoreCreation";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -15,7 +18,6 @@ export default function DatabaseDisplay() {
     const [databaseVersion, setDatabaseVersion] = useState(0);
 
     const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
-    const [nextObjectStore, setNextObjectStores] = useState<JSX.Element[]>([]);
 
     useEffect(() => { // Find the database if it exists
         async function getObjectStores() {
@@ -174,6 +176,7 @@ export default function DatabaseDisplay() {
             </div>
             <p className="text-xl">Object Stores ({objectStores.length} found):</p>
             <PrimaryButton text="New Object Store" clicked={newObjectStore}/>
+            <ObjectStoreCreation/>
             {objectStores}
         </>
     )

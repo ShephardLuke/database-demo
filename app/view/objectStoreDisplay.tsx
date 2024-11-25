@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Record from "./record";
 import PrimaryButton from "../buttons/primaryButton";
 import DeleteButton from "../buttons/deleteButton";
+import DatabaseInput from "./table/databaseInput";
 
 export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idbRequest: IDBRequest<any[]>, deleteObjectStore: Function}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
@@ -19,7 +20,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
 
     let inputs = []; // Add inputs for adding a new record
     for (let index of indexOrder) {
-        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><input placeholder={"Enter " + index} className="text-center border-2 w-3/4"></input></td>)
+        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><DatabaseInput placeholder={"Enter " + index + "..."}/></td>)
     }
 
     recordRows.push(<tr className="border-2" key={recordRows.length}>{inputs}</tr>)
