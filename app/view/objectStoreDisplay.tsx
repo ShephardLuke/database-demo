@@ -71,7 +71,6 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     
             const newRequest = objectStore.add(newData)
             newRequest.onsuccess = (event) => {
-                //newData[keys[0]] = newRequest.result;
                 setData([...data, newData])
             }
 
@@ -83,7 +82,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     }
 
     function deleteRecord(record: any) { // Removes record from database and internal array
-        console.log(record, keys[0])
+        console.log(record, keys)
         const request = openDatabase();
 
         request.onsuccess = (event) => {
@@ -93,7 +92,17 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             const transaction = db.transaction([name], "readwrite")
             const objectStore = transaction.objectStore(name);
 
-            objectStore.delete(record[keys[0]]) // wont work for multiple keys (not supported yet)
+            let toDelete: IDBValidKey = [];
+
+            if (keys.length == 0) {
+                toDelete = record[keys[0]];
+            } else {
+                for (let key of keys) {
+                    toDelete.push(record[key])
+                }
+            }
+
+            objectStore.delete(toDelete)
 
             transaction.oncomplete = () => {
                 let newData = [... data];
