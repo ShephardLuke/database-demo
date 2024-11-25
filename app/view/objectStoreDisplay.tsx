@@ -11,6 +11,22 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     const [indexes, setIndexes] = useState<string[]>([]);
     const [data, setData] = useState<object[]>([]);
 
+    let indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
+
+    let headings = indexOrder.map(index => <th key={indexes.indexOf(index)} className={"border-solid border-4" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
+
+    let recordRows = data.map(record => <Record key={"record"+(record as any)[keys[0]]} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
+
+    let inputs = []; // Add inputs for adding a new record
+    for (let index of indexOrder) {
+        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><input placeholder={"Enter " + index} className="text-center border-2 w-3/4"></input></td>)
+    }
+
+    recordRows.push(<tr className="border-2" key={recordRows.length}>{inputs}</tr>)
+
+    let deleteButtons = data.map(record => <DeleteButton key={(record as any)[keys[0]]} text="Delete Record" clicked={() => {deleteRecord(record)}}/>) // Button to deletes records
+    deleteButtons.push(<PrimaryButton key={"new"} text="New Record" clicked={() => {console.log("uuihuih")}}></PrimaryButton>)
+    
     useEffect(() => { // Get keys, indexes and records from given request
         idbRequest.onsuccess = (event) => {
             console.log(idbRequest.result)
@@ -25,24 +41,6 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         }
     
     }, [])
-    
-    let indexHeadings = indexes.map(index => <th key={indexes.indexOf(index)} className="border-solid border-4">{index}</th>)
-    let keyHeadings = keys.map(key => <th key={keys.indexOf(key)} className={`border-solid border-4 underline`}>{key}</th>)
-
-    let recordRows = data.map(record => <Record key={"record"+(record as any)[keys[0]]} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
-
-    let inputs = []; // Add inputs for adding a new record
-    for (let index of indexes) {
-        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><input placeholder={"Enter " + index} className="text-center border-2 w-3/4"></input></td>)
-    }for (let key of keys) {
-        inputs.push(<td className="border-2" key={key} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + key}><input placeholder={"Enter " + key} className="text-center border-2 w-3/4"></input></td>)
-    }
-
-    recordRows.push(<tr className="border-2" key={recordRows.length}>{inputs}</tr>)
-
-    let deleteButtons = data.map(record => <DeleteButton key={(record as any)[keys[0]]} text="Delete Record" clicked={() => {deleteRecord(record)}}/>) // Button to deletes records
-    deleteButtons.push(<PrimaryButton key={"new"} text="New Record" clicked={() => {console.log("uuihuih")}}></PrimaryButton>)
-    
 
     function openDatabase() { // Opens database from request
         let source = idbRequest.source as IDBObjectStore
@@ -116,8 +114,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
                 <table className="table-fixed w-full">
                     <thead className="h-2">
                         <tr>
-                            {indexHeadings}
-                            {keyHeadings}
+                            {headings}
                         </tr>
                     </thead>
                     <tbody>

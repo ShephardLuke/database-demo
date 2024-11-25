@@ -15,6 +15,7 @@ export default function DatabaseDisplay() {
     const [databaseVersion, setDatabaseVersion] = useState(0);
 
     const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
+    const [nextObjectStore, setNextObjectStores] = useState<JSX.Element[]>([]);
 
     useEffect(() => { // Find the database if it exists
         async function getObjectStores() {
@@ -171,7 +172,7 @@ export default function DatabaseDisplay() {
                 <p className="text-center text-4xl font-bold underline whitespace-pre">{databaseName}</p>
                 <p className="text-3xl p-5">(Version {databaseVersion})</p>
             </div>
-            <p className="text-xl">Object Stores ({objectStores.length}):</p>
+            <p className="text-xl">Object Stores ({objectStores.length} found):</p>
             <PrimaryButton text="New Object Store" clicked={newObjectStore}/>
             {objectStores}
         </>
