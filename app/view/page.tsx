@@ -3,7 +3,7 @@ import DatabaseDisplay from "./databaseDisplay";
 import Footer from "../footer/footer";
 
 
-export default function View() {
+export default function View() { // Viewing one database
     
     return (
         <>

@@ -1,15 +1,17 @@
+// Displays one object store based on the given request
+
 import { useEffect, useState } from "react";
 import Record from "./record";
 import PrimaryButton from "../buttons/primaryButton";
 import DeleteButton from "../buttons/deleteButton";
 
-export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idbRequest: IDBRequest<any[]>, deleteObjectStore: Function}) {
+export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idbRequest: IDBRequest<any[]>, deleteObjectStore: Function}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
     const [keys, setKeys] = useState<string[]>([]);
     const [indexes, setIndexes] = useState<string[]>([]);
     const [data, setData] = useState<object[]>([]);
 
-    useEffect(() => {
+    useEffect(() => { // Get keys, indexes and records from given request
         idbRequest.onsuccess = (event) => {
             console.log(idbRequest.result)
             let result = idbRequest.result;
@@ -24,27 +26,25 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     
     }, [])
     
-
-    
     let indexHeadings = indexes.map(index => <th key={indexes.indexOf(index)} className="border-solid border-4">{index}</th>)
     let keyHeadings = keys.map(key => <th key={keys.indexOf(key)} className={`border-solid border-4 underline`}>{key}</th>)
 
     let recordRows = data.map(record => <Record key={"record"+(record as any)[keys[0]]} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
-    let inputs = [];
+    let inputs = []; // Add inputs for adding a new record
     for (let index of indexes) {
-        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><input className="text-center border-2"></input></td>)
+        inputs.push(<td className="border-2" key={index} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + index}><input placeholder={"Enter " + index} className="text-center border-2 w-3/4"></input></td>)
     }for (let key of keys) {
-        inputs.push(<td className="border-2" key={key} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + key}><input className="text-center border-2"></input></td>)
+        inputs.push(<td className="border-2" key={key} id={"input-" + (idbRequest.source as IDBObjectStore).name + "-" + key}><input placeholder={"Enter " + key} className="text-center border-2 w-3/4"></input></td>)
     }
 
     recordRows.push(<tr className="border-2" key={recordRows.length}>{inputs}</tr>)
 
-    let deleteButtons = data.map(record => <DeleteButton key={(record as any)[keys[0]]} text="Delete Record" clicked={() => {deleteRecord(record)}}/>)
+    let deleteButtons = data.map(record => <DeleteButton key={(record as any)[keys[0]]} text="Delete Record" clicked={() => {deleteRecord(record)}}/>) // Button to deletes records
     deleteButtons.push(<PrimaryButton key={"new"} text="New Record" clicked={() => {console.log("uuihuih")}}></PrimaryButton>)
     
 
-    function openDatabase() {
+    function openDatabase() { // Opens database from request
         let source = idbRequest.source as IDBObjectStore
         const request = window.indexedDB.open(source.transaction.db.name);
 
@@ -55,7 +55,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         return request;
     }
 
-    function newRecord() {
+    function newRecord() { // Adds a new record to the database and internal array
         const request = openDatabase();
 
         request.onsuccess = (event) => {
@@ -83,7 +83,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
 
     }
 
-    function deleteRecord(record: any) {
+    function deleteRecord(record: any) { // Removes record from database and internal array
         console.log(record, keys[0])
         const request = openDatabase();
 

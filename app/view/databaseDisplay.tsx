@@ -1,3 +1,5 @@
+// Shows one database, so object stores and records
+
 'use client'
 
 import { useSearchParams } from "next/navigation";
@@ -14,7 +16,7 @@ export default function DatabaseDisplay() {
 
     const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
 
-    useEffect(() => {
+    useEffect(() => { // Find the database if it exists
         async function getObjectStores() {
             if (!searchName) {
                 return
@@ -39,7 +41,7 @@ export default function DatabaseDisplay() {
         getObjectStores()
     }, [])
 
-    useEffect(() => {
+    useEffect(() => { // When database is found open it
         if (!foundDatabase) {
             return;
         }
@@ -55,7 +57,7 @@ export default function DatabaseDisplay() {
         }
     }, [foundDatabase])
 
-    useEffect(() => {
+    useEffect(() => { // Refresh the object stores when the database name/version is updated
         if (!foundDatabase) {
             return;
         }
@@ -70,7 +72,7 @@ export default function DatabaseDisplay() {
         }
     }, [databaseName, databaseVersion])
 
-    function updateObjectStores(db: IDBDatabase) {
+    function updateObjectStores(db: IDBDatabase) { // Create an array to display each object store
         if (db.objectStoreNames.length == 0) {
             setObjectStores([])
             db.close()
@@ -93,7 +95,7 @@ export default function DatabaseDisplay() {
         }
     }
 
-    function openDatabase() {
+    function openDatabase() { // Open a new version of the database to add/remove object stores
         let newVersion = databaseVersion + 1;
     
         const request = window.indexedDB.open(databaseName, newVersion);
@@ -113,7 +115,7 @@ export default function DatabaseDisplay() {
         return request
     }
 
-    function newObjectStore() {
+    function newObjectStore() { // Adds object store to database
 
         if (!foundDatabase) {
             console.log("no database")
@@ -144,7 +146,7 @@ export default function DatabaseDisplay() {
         }
     }
 
-    function deleteObjectStore(store: string) {
+    function deleteObjectStore(store: string) { // Deletes object store from database
         if (!foundDatabase) {
             console.log("no database")
             return;

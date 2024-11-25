@@ -1,4 +1,4 @@
-export default function Footer() {
+export default function Footer() { // Global footer
     let pk = require("../../package.json")
     return (
         <footer className="text-center">

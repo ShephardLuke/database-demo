@@ -6,14 +6,14 @@ import Footer from "./footer/footer";
 import DbLink from "./dbLink";
 import PrimaryButton from "./buttons/primaryButton";
 
-export default function ChooseDatabase() {
+export default function ChooseDatabase() { // Displaying every database allowing the user to view them and choose one or create/delete them
 
     const [databases, setDatabases] = useState<IDBDatabaseInfo[]>([]);
 
     const databaseSelect = databases.map(database => <DbLink key={database.name} database={database} deleteDatabase={deleteDatabase}></DbLink>)
     console.log(databases)
 
-    useEffect(() => {
+    useEffect(() => { // Get all databases
         async function getDatabases() {
             const databases = await indexedDB.databases()
             setDatabases(databases);
@@ -22,7 +22,7 @@ export default function ChooseDatabase() {
         getDatabases()
     }, [])
 
-    function newDatabase() {
+    function newDatabase() { // Create new database
         let typedName = prompt("Name: ");
         if (!typedName || typedName.trim().length == 0) {
             return;
@@ -44,7 +44,7 @@ export default function ChooseDatabase() {
         }
     }
 
-    function deleteDatabase(database: IDBDatabaseInfo) {
+    function deleteDatabase(database: IDBDatabaseInfo) { // Delete existing database
         if (!database.name) {
             return;
         }
