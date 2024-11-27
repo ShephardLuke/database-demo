@@ -2,7 +2,7 @@
 ### https://database-demo.shephardluke.co.uk
 A demonstration of databases in the browser window using the [IndexxedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API). Databases can be created, which hold object stores where records can be added. These databases are then kept locally in the browser so the databases can be retrieved between sessions.
 
-#### Pre-release version, problems may occur.
+#### Pre-release version, everything is subject to change and bugs or crashes may occur.
 
 ## How to use
 ### Database Menu (Main Page)
