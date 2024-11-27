@@ -1,6 +1,6 @@
 # database-demo
 ### https://database-demo.shephardluke.co.uk
-A demonstration of databases in the browser window using the [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API). Databases can be created, which hold object stores where records can be added. These databases are then kept in the browser's persistant storage so the databases can be saved between sessions. 
+A demonstration of databases in the browser window using the [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API). Databases can be created, which hold object stores where records can be added. These databases are then kept in the browser's persistent storage so the databases can be saved between sessions. 
 
 #### Pre-release version, everything is subject to change and bugs or crashes may occur.
 
