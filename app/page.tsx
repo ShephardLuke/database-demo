@@ -1,6 +1,5 @@
 'use client'
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import Footer from "./footer/footer";
 import DbLink from "./dbLink";
@@ -21,16 +20,17 @@ export default function ChooseDatabase() { // Displaying every database allowing
     }, [])
 
     function newDatabase() { // Create new database
-        let typedName = (document.getElementById("inputDatabaseName") as HTMLInputElement).value
+        const typedName = (document.getElementById("inputDatabaseName") as HTMLInputElement).value
         if (typedName.trim().length == 0) {
             return;
         }
-        let name = typedName.trim();
-        let request = window.indexedDB.open(name);
-        request.onerror = (event) => {
+
+        const name = typedName.trim();
+        const request = window.indexedDB.open(name);
+        request.onerror = () => {
 
         }
-        request.onsuccess = (event) => {
+        request.onsuccess = () => {
             request.result.close()
             
             async function getDatabases() {
@@ -53,9 +53,8 @@ export default function ChooseDatabase() { // Displaying every database allowing
             console.error(event)
         }
 
-        DBDeleteRequest.onsuccess = (event) => {
-            let newDatabases = [... databases];
-            let foundName
+        DBDeleteRequest.onsuccess = () => {
+            const newDatabases = [... databases];
             newDatabases.splice(newDatabases.indexOf(database), 1)
             setDatabases(newDatabases)
         }
@@ -72,6 +71,7 @@ export default function ChooseDatabase() { // Displaying every database allowing
                             <th>Database Name</th>
                             <th>Database Version</th>
                             <th>Object Stores</th>
+                            <th>Open Database</th>
                             <th>Delete Database</th>
                         </tr>
                     </thead>
@@ -79,8 +79,8 @@ export default function ChooseDatabase() { // Displaying every database allowing
                         {databaseSelect}
                     </tbody> 
                 </table>
-                <div className="text-center">
-                    <input className="border-2" id="inputDatabaseName" placeholder="Enter Name" />
+                <div key={new Date().getTime()} className="text-center">
+                    <input className="text-center m-2 border-4 w-1/4" id="inputDatabaseName" placeholder="Enter Name..." />
                     <PrimaryButton text="New Database" clicked={newDatabase}></PrimaryButton>
                 </div>
             </div>

@@ -1,22 +1,18 @@
 import Link from "next/link";
 import DeleteButton from "./buttons/deleteButton";
-import { ReactElement, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import PrimaryButton from "./buttons/primaryButton";
 
-export default function DbLink({database, deleteDatabase}: {database: IDBDatabaseInfo, deleteDatabase: Function}) { // Disaplying a summary of the database with the name being a link to the full database view page
+export default function DbLink({database, deleteDatabase}: {database: IDBDatabaseInfo, deleteDatabase: (database: IDBDatabaseInfo) => void}) { // Disaplying a summary of the database with the name being a link to the full database view page
     
     const [objectStoreNames, setObjectStoreNames] = useState<string[]>([]);
 
     function getObjectStoreNamesString() { // Returns the store names as a single string for displaying on the page
         let storeNames = "";
-        for (let store of objectStoreNames) {
+        for (const store of objectStoreNames) {
             storeNames += store + ", ";
         }
         storeNames = storeNames.substring(0, storeNames.length - 2)
-
-        if (storeNames.length >= 50) {
-            storeNames = storeNames.substring(0, 50);
-            storeNames += "..."
-        }
         
         if (storeNames.length == 0) {
             storeNames = "None";
@@ -32,7 +28,7 @@ export default function DbLink({database, deleteDatabase}: {database: IDBDatabas
             if (!database.name) {
                 return;
             }
-            let request = window.indexedDB.open(database.name)
+            const request = window.indexedDB.open(database.name)
     
             request.onerror = (event) => {
                 console.error(event);
@@ -47,18 +43,23 @@ export default function DbLink({database, deleteDatabase}: {database: IDBDatabas
         }
         
         getObjectStoreNames();
-    }, [])
+    }, [database])
 
     return (
         <tr className="border-2">
             <th>
-                <Link className="whitespace-pre basis-2/4" href={{pathname: "/view", query: {database: database.name}}}>{database.name}</Link>
+                {database.name}
             </th>
             <td>
                 {database.version}
             </td>
-            <td>
+            <td className="truncate text-nowrap">
                 {objectStoreNames.length}: {getObjectStoreNamesString()}
+            </td>
+            <td>
+                <Link className="" href={{pathname: "/view", query: {database: database.name}}}>
+                    <PrimaryButton text="Open Database" clicked={() => {}}/>
+                </Link>
             </td>
             <td>
                 <DeleteButton text="Delete Database" clicked={() => {deleteDatabase(database)}}/>

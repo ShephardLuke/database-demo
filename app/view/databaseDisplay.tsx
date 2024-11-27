@@ -4,14 +4,13 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import ObjectStore from "./objectStoreDisplay";
-import PrimaryButton from "../buttons/primaryButton";
-import ObjectStoreCreation from "./objectStoreCreation";
+import ObjectStore from "./objectStore/objectStoreDisplay";
+import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 import { DBIndex } from "./DBIndex";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
-    let searchName = searchParams.get("database");
+    const searchName = searchParams.get("database");
 
     const [databaseName, setDatabaseName] = useState("Database Not Found")
     const [foundDatabase, setFoundDatabase] = useState(false);
@@ -26,7 +25,7 @@ export default function DatabaseDisplay() {
 
             const databases = await indexedDB.databases()
             let found = false;
-            for (let database of databases) {
+            for (const database of databases) {
                 if (database.name == searchName) {
                     found = true;
                 }
@@ -41,9 +40,60 @@ export default function DatabaseDisplay() {
         }
 
         getObjectStores()
-    }, [])
+    }, [searchName])
 
     useEffect(() => { // When database is found open it
+
+        function deleteObjectStore(store: string) { // Deletes object store from database
+            if (!foundDatabase) {
+                console.log("no database")
+                return;
+            }
+    
+            const newVersion = databaseVersion + 1;
+    
+            const request = window.indexedDB.open(databaseName, newVersion);
+    
+            request.onsuccess = () => {
+                setDatabaseVersion(request.result.version)
+                request.result.close();
+            }
+    
+            request.onerror = () => {
+                console.error(request)
+                request.result.close();
+            }
+    
+            request.onupgradeneeded = () => {
+                const newdb = request.result;
+    
+                newdb.deleteObjectStore(store)
+            }
+        }    
+
+        function updateObjectStores(db: IDBDatabase) { // Create an array to display each object store
+            if (db.objectStoreNames.length == 0) {
+                setObjectStores([])
+                db.close()
+                return;
+            }
+            const allObjectStores: JSX.Element[] = [];
+            const transaction = db.transaction([... db.objectStoreNames]);
+    
+            for (const name of [... db.objectStoreNames]) {
+                const objectStore = transaction.objectStore(name);
+    
+                allObjectStores.push(<ObjectStore key={name} idbRequest={objectStore.getAll()} deleteObjectStore={deleteObjectStore}></ObjectStore>)
+            }  
+            setObjectStores(allObjectStores)
+            transaction.oncomplete = () => {
+                db.close()
+            }     
+            transaction.onerror = () => {
+                db.close()
+            }
+        }
+
         if (!foundDatabase) {
             return;
         }
@@ -53,63 +103,27 @@ export default function DatabaseDisplay() {
             console.error(event)
         }
 
-        request.onsuccess = (event) => {
+        request.onsuccess = () => {
             setDatabaseVersion(request.result.version)
             updateObjectStores(request.result)
         }
-    }, [foundDatabase])
+    }, [databaseName, databaseVersion, foundDatabase])
 
-    useEffect(() => { // Refresh the object stores when the database name/version is updated
-        if (!foundDatabase) {
-            return;
-        }
-        const request = window.indexedDB.open(databaseName);
 
-        request.onerror = (event) => {
-            console.error(event)
-        }
-
-        request.onsuccess = (event) => {
-            updateObjectStores(request.result)
-        }
-        
-    }, [databaseName, databaseVersion])
-
-    function updateObjectStores(db: IDBDatabase) { // Create an array to display each object store
-        if (db.objectStoreNames.length == 0) {
-            setObjectStores([])
-            db.close()
-            return;
-        }
-        let allObjectStores: JSX.Element[] = [];
-        const transaction = db.transaction([... db.objectStoreNames]);
-
-        for (let name of [... db.objectStoreNames]) {
-            const objectStore = transaction.objectStore(name);
-
-            allObjectStores.push(<ObjectStore key={name} idbRequest={objectStore.getAll()} deleteObjectStore={deleteObjectStore}></ObjectStore>)
-        }  
-        setObjectStores(allObjectStores)
-        transaction.oncomplete = (event) => {
-            db.close()
-        }     
-        transaction.onerror = (event) => {
-            db.close()
-        }
-    }
 
     function openDatabase() { // Open a new version of the database to add/remove object stores
-        let newVersion = databaseVersion + 1;
+        const newVersion = databaseVersion + 1;
     
         const request = window.indexedDB.open(databaseName, newVersion);
 
-        request.onsuccess = (event) => {
+        request.onsuccess = () => {
             setDatabaseVersion(request.result.version)
-            updateObjectStores(request.result)
+            request.result.close()
         }
 
         request.onerror = (event) => {
             console.error(event)
+            request.result.close()
         }
 
         return request
@@ -122,16 +136,16 @@ export default function DatabaseDisplay() {
             return;
         }
 
-        let request = openDatabase()
+        const request = openDatabase()
 
 
-        request.onupgradeneeded = (event) => {
-            let newdb = request.result
+        request.onupgradeneeded = () => {
+            const newdb = request.result
 
-            let keys = [];
-            let nonKeys = [];
+            const keys = [];
+            const nonKeys = [];
 
-            for (let index of indexes) {
+            for (const index of indexes) {
                 if (index.isKey) {
                     keys.push(index.name);
                 } else {
@@ -139,30 +153,14 @@ export default function DatabaseDisplay() {
                 }
             }
 
-            let objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys})
+            const objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys})
 
-            for (let index of nonKeys) {
+            for (const index of nonKeys) {
                 objectStore.createIndex(index.name, index.name, {unique: false})
             }
 
         }
     }
-
-    function deleteObjectStore(store: string) { // Deletes object store from database
-        if (!foundDatabase) {
-            console.log("no database")
-            return;
-        }
-
-        let request = openDatabase()
-
-        request.onupgradeneeded = (event) => {
-            let newdb = request.result;
-
-            newdb.deleteObjectStore(store)
-        }
-    }
-
 
     return (
         <>  

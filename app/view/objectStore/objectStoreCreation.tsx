@@ -1,26 +1,26 @@
-import { ChangeEvent, MouseEvent, MouseEventHandler, useState } from "react";
-import PrimaryButton from "../buttons/primaryButton";
-import DatabaseIndex from "./table/databaseIndex";
-import DatabaseInput from "./table/databaseInput";
-import DeleteButton from "../buttons/deleteButton";
-import { DBIndex } from "./DBIndex";
+import { MouseEvent, useState } from "react";
+import PrimaryButton from "../../buttons/primaryButton";
+import DatabaseIndex from "../table/databaseIndex";
+import DatabaseInput from "../input/databaseInput";
+import DeleteButton from "../../buttons/deleteButton";
+import { DBIndex } from "../DBIndex";
 
-export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: Function}) { // User interface for creating new object stores
+export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (name: string, indexes: DBIndex[]) => void}) { // User interface for creating new object stores
 
     const [indexes, setIndexes] = useState<DBIndex[]>([new DBIndex(0, undefined, true), new DBIndex(1)]);
     const [idPointer, setIdPointer] = useState<number>(2);
 
     let indexCounter = -1
-    let indexRows = indexes.map(index => {indexCounter += 1; return <DatabaseIndex key={index.id} text={<DatabaseInput underline={index.isKey} id={"name" + index.id} placeholder={"index" + (indexCounter + 1)}/>}/>})
+    const indexRows = indexes.map(index => {indexCounter += 1; return <DatabaseIndex key={index.id} text={<DatabaseInput underline={index.isKey} id={"name" + index.id} placeholder={"index" + (indexCounter + 1)}/>}/>})
     indexCounter = -1;
-    let keyCheckboxes = indexes.map(index => <td className="border-2" key={index.id}><label htmlFor={"isKey" + index.id}>Key:</label><input type="checkbox" className="m-2" id={"isKey" + index.id} onClick={(event) => changeKey(index, event)}/></td>)
-    let deleteButtons = indexes.map(index => {indexCounter += 1; if (indexCounter < 2) {return <td className="border-2" key={index.id}>Cannot delete, at least 2 indexes needed.</td>}; return <td className="border-2" key={index.id}><DeleteButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
+    const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.id}><label htmlFor={"isKey" + index.id}>Key:</label><input type="checkbox" className="m-2" id={"isKey" + index.id} onClick={(event) => changeKey(index, event)}/></td>)
+    const deleteButtons = indexes.map(index => {indexCounter += 1; if (indexCounter < 2) {return <td className="border-2" key={index.id}>Cannot delete, at least 2 indexes needed.</td>}; return <td className="border-2" key={index.id}><DeleteButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
 
     keyCheckboxes[0] = <td className="border-2" key={0}>Always a key.</td>
     
     function newIndex() { // Creates a new index and adds to array
-        let newInputs = [...indexes];
-        let length = newInputs.length;
+        const newInputs = [...indexes];
+        const length = newInputs.length;
         if (length >= 10) {
             return;
         }
@@ -31,27 +31,27 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: F
     }
 
     function deleteIndex(index: DBIndex) { // Removes the specified index from the array
-        let i = indexes.indexOf(index)
-        let newIndexes = [... indexes];
+        const i = indexes.indexOf(index)
+        const newIndexes = [... indexes];
         newIndexes.splice(i, 1)
         setIndexes(newIndexes);
     }
 
     function changeKey(index: DBIndex, event: MouseEvent) { // When a user toggles the key checkbox on an index, this updates the DBIndex object
-        let i = indexes.indexOf(index)
-        let newIndexes = [... indexes];
+        const i = indexes.indexOf(index)
+        const newIndexes = [... indexes];
         newIndexes[i] = new DBIndex(index.id, index.name, (event.target as HTMLInputElement).checked)
         setIndexes(newIndexes);
         
     }  
 
     function exportIndexes() { // Adds index names and calls parent method to create the new object store
-        for (let index of indexes) {
-            let element = document.getElementById("name" + index.id) as HTMLInputElement;
+        for (const index of indexes) {
+            const element = document.getElementById("name" + index.id) as HTMLInputElement;
             index.name = element.value;
         }
 
-        let nameInput = document.getElementById("objectStoreName") as HTMLInputElement
+        const nameInput = document.getElementById("objectStoreName") as HTMLInputElement
         newObjectStore(nameInput.value, indexes);
     }
 
