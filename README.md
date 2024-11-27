@@ -8,7 +8,7 @@ A demonstration of databases in the browser window using the [IndexedDB API](htt
 ### Database Menu (Main Page)
 When loading the webpage for the first time there will be no databases.
 
-To create a database, at the bottom enter the name and press the 'New Database' button and it should appear on the list.
+To create a database, at the bottom enter the name and press the 'Create Database' button and it should appear on the list.
 Press 'Open Database' to go into the database, or 'Delete Database' to remove it.
 
 ### Database View
