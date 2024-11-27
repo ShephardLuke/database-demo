@@ -27,7 +27,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     recordRows.push(
         <tr className="border-2" key={recordRows.length}>
             {inputs}
-            <td><PrimaryButton key={"new"} text="New Record" clicked={newRecord}></PrimaryButton></td>
+            <td><PrimaryButton key={"new"} text="Create Record" clicked={newRecord}></PrimaryButton></td>
         </tr>
     )
 

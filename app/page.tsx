@@ -81,7 +81,7 @@ export default function ChooseDatabase() { // Displaying every database allowing
                 </table>
                 <div key={new Date().getTime()} className="text-center">
                     <input className="text-center m-2 border-4 w-1/4" id="inputDatabaseName" placeholder="Enter Name..." />
-                    <PrimaryButton text="New Database" clicked={newDatabase}></PrimaryButton>
+                    <PrimaryButton text="Create Database" clicked={newDatabase}></PrimaryButton>
                 </div>
             </div>
             <Footer></Footer>
