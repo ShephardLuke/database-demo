@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ObjectStore from "./objectStore/objectStoreDisplay";
 import ObjectStoreCreation from "./objectStore/objectStoreCreation";
-import { DBIndex } from "./DBIndex";
+import { DBIndex } from "./dbIndex";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -117,7 +117,9 @@ export default function DatabaseDisplay() {
         const request = window.indexedDB.open(databaseName, newVersion);
 
         request.onsuccess = () => {
-            setDatabaseVersion(request.result.version)
+            if (request.result.version != databaseVersion) {
+                setDatabaseVersion(request.result.version)
+            }
             request.result.close()
         }
 
@@ -129,7 +131,7 @@ export default function DatabaseDisplay() {
         return request
     }
 
-    function newObjectStore(name:string, indexes: DBIndex[]) { // Adds object store to database
+    function newObjectStore(name:string, indexes: DBIndex[], result: (success: boolean, message: string) => void) { // Adds object store to database
 
         if (!foundDatabase) {
             console.log("no database")
@@ -138,7 +140,6 @@ export default function DatabaseDisplay() {
 
         const request = openDatabase()
 
-
         request.onupgradeneeded = () => {
             const newdb = request.result
 
@@ -146,6 +147,11 @@ export default function DatabaseDisplay() {
             const nonKeys = [];
 
             for (const index of indexes) {
+                const match = index.name.match("[A-Za-z][A-Za-z0-9]*");
+                if(!match || match[0] != index.name) {
+                    result(false, "Name for index " + index.name + " is invalid. Indexes must start with a letter and can only contain letters and numbers.");
+                    return;
+                }
                 if (index.isKey) {
                     keys.push(index.name);
                 } else {
@@ -153,13 +159,18 @@ export default function DatabaseDisplay() {
                 }
             }
 
+
+
             const objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys})
 
             for (const index of nonKeys) {
                 objectStore.createIndex(index.name, index.name, {unique: false})
             }
 
+            result(true, "Object store " + name + " created.")
+
         }
+
     }
 
     return (
@@ -169,7 +180,7 @@ export default function DatabaseDisplay() {
                 <p className="text-3xl p-5">(Version {databaseVersion})</p>
             </div>
             <p className="text-xl pb-20">Object Stores ({objectStores.length} found):</p>
-            {<ObjectStoreCreation key={new Date().getTime()} newObjectStore={newObjectStore}/>}
+            {<ObjectStoreCreation newObjectStore={newObjectStore}/>}
             {objectStores}
         </>
     )

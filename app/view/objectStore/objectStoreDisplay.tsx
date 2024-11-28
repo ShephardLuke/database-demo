@@ -5,19 +5,21 @@ import Record from "./record/record";
 import PrimaryButton from "../../buttons/primaryButton";
 import DeleteButton from "../../buttons/deleteButton";
 import DatabaseInput from "../input/databaseInput";
+import SuccessMessage from "@/app/messages/successMessage";
 
 export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idbRequest: IDBRequest<{[key: string]: string}[]>, deleteObjectStore: (name: string) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
     const [keys, setKeys] = useState<string[]>([]);
     const [indexes, setIndexes] = useState<string[]>([]);
     const [data, setData] = useState<{[key: string]: string}[]>([]);
+    const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>()
 
     const indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
     const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid border-4" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
     headings.push(<th key={"-1"} className="border-solid border-4">Option</th>)
 
-    const recordRows = data.map(record => <Record key={"record"+(record as {[key: string]: string})[keys[0]]} deleteRecord={deleteRecord} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
+    const recordRows = data.map(record => <Record key={Object.values(record).toString()} deleteRecord={deleteRecord} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
     const inputs = []; // Add inputs for adding a new record
     for (const index of indexOrder) {
@@ -79,9 +81,18 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             newRequest.onsuccess = () => {
                 setData([...data, newData])
             }
+            
+            transaction.onerror = (event) => {
+                if ((event.target as IDBRequest).error?.name == "ConstraintError") {
+                    setCreationMessage({success: false, text: ("A record already exists with the same " + (keys.length > 1? "keys." : "key."))})
+                } else {
+                    setCreationMessage({success: false, text: "Record creation failed."})
+                }
+            }
 
             transaction.oncomplete = () => {
                 db.close()
+                setCreationMessage({success: true, text: "Record created."})
             }
         }
 
@@ -116,6 +127,10 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
                 setData(newData)
             }
         }
+
+        if (creationMessage != undefined) {
+            setCreationMessage(undefined);
+        }
     }
 
     return (
@@ -124,7 +139,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             <div className="flex justify-center">
                 <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore((idbRequest.source as IDBObjectStore).name)}/>
             </div>
-            <div className="flex">
+            <div className="m-4 flex">
                 <table className="table-fixed w-full">
                     <thead className="h-2">
                         <tr>
@@ -136,6 +151,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
                     </tbody>
                 </table>
             </div>
+            <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
         </div>
     )
 }
