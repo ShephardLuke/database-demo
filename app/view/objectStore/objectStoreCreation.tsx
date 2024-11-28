@@ -3,8 +3,8 @@ import PrimaryButton from "../../buttons/primaryButton";
 import DatabaseIndex from "../table/databaseIndex";
 import DatabaseInput from "../input/databaseInput";
 import DeleteButton from "../../buttons/deleteButton";
-import { DBIndex } from "../dbIndex";
 import SuccessMessage from "@/app/messages/successMessage";
+import { DBIndex } from "../dbIndex";
 
 export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (name: string, indexes: DBIndex[], result: (success: boolean, message: string) => void) => void}) { // User interface for creating new object stores
 
