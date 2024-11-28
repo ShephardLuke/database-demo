@@ -1,4 +1,4 @@
-export class DBIndex {
+export class DatabaseIndex {
     id: number;
     name: string;
     isKey: boolean;

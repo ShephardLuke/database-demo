@@ -1,25 +1,25 @@
 import { MouseEvent, useState } from "react";
 import PrimaryButton from "../../buttons/primaryButton";
-import DatabaseIndex from "../table/databaseIndex";
+import DatabaseIndexDisplay from "../table/databaseIndexDisplay";
 import DatabaseInput from "../input/databaseInput";
 import DeleteButton from "../../buttons/deleteButton";
 import SuccessMessage from "@/app/messages/successMessage";
-import { DBIndex } from "../dbIndex";
+import { DatabaseIndex } from "../databaseIndex";
 
-export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (name: string, indexes: DBIndex[], result: (success: boolean, message: string) => void) => void}) { // User interface for creating new object stores
+export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (name: string, indexes: DatabaseIndex[], result: (success: boolean, message: string) => void) => void}) { // User interface for creating new object stores
 
     const [idPointer, setIdPointer] = useState<number>(0);
-    const [indexes, setIndexes] = useState<DBIndex[]>(getDefaultIndexes);
+    const [indexes, setIndexes] = useState<DatabaseIndex[]>(getDefaultIndexes);
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>();
 
-    const indexRows = indexes.map(index => {return <DatabaseIndex key={index.id} text={<DatabaseInput underline={index.isKey} id={"name" + index.id} placeholder={"Enter index..."}/>}/>})
+    const indexRows = indexes.map(index => {return <DatabaseIndexDisplay key={index.id} text={<DatabaseInput underline={index.isKey} id={"name" + index.id} placeholder={"Enter index..."}/>}/>})
 
     const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.id}><label htmlFor={"isKey" + index.id}>Key:</label><input type="checkbox" defaultChecked={index.isKey} className="m-2" id={"isKey" + index.id} onClick={(event) => changeKey(index, event)}/></td>)
     const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.id}><DeleteButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
 
     function getDefaultIndexes() {
         setIdPointer(idPointer + 2);
-        return [new DBIndex(idPointer, "", true), new DBIndex(idPointer + 1, "", false)];
+        return [new DatabaseIndex(idPointer, "", true), new DatabaseIndex(idPointer + 1, "", false)];
     }
     
     function newIndex() { // Creates a new index and adds to array
@@ -29,7 +29,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
             return;
         }
 
-        newInputs.push(new DBIndex(idPointer))
+        newInputs.push(new DatabaseIndex(idPointer))
         setIdPointer(idPointer + 1);
         setIndexes(newInputs)
 
@@ -38,7 +38,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
         }
     }
 
-    function deleteIndex(index: DBIndex) { // Removes the specified index from the array
+    function deleteIndex(index: DatabaseIndex) { // Removes the specified index from the array
         if (indexes.length <= 2) {
             setCreationMessage({success: false, text: "Object stores must have at least 2 indexes."});
             return;
@@ -53,10 +53,10 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
         }
     }
 
-    function changeKey(index: DBIndex, event: MouseEvent) { // When a user toggles the key checkbox on an index, this updates the DBIndex object
+    function changeKey(index: DatabaseIndex, event: MouseEvent) { // When a user toggles the key checkbox on an index, this updates the DatabaseIndex object
         const i = indexes.indexOf(index)
         const newIndexes = [... indexes];
-        newIndexes[i] = new DBIndex(index.id, index.name, (event.target as HTMLInputElement).checked)
+        newIndexes[i] = new DatabaseIndex(index.id, index.name, (event.target as HTMLInputElement).checked)
         setIndexes(newIndexes);
         
     }  
