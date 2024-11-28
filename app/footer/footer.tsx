@@ -3,8 +3,10 @@ export default function Footer() { // Global footer
     return (
         <footer className="text-center">
             <hr></hr>
-            <p className="pt-10">Version {pk.version}</p>
-            <p>(Pre-release version, everything is subject to change and bugs or crashes may occur.)</p>
+            <div className="p-10">
+                <p>Version {pk.version}</p>
+                <p>(Pre-release version, everything is subject to change and bugs or crashes may occur.)</p>
+            </div>
         </footer>
     )
 }

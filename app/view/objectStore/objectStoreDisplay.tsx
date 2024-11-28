@@ -16,8 +16,8 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
 
     const indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
-    const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid border-4" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
-    headings.push(<th key={"-1"} className="border-solid border-4">Option</th>)
+    const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
+    headings.push(<th key={"-1"} className="border-solid">Option</th>)
 
     const recordRows = data.map(record => <Record key={Object.values(record).toString()} deleteRecord={deleteRecord} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
@@ -139,8 +139,8 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             <div className="flex justify-center">
                 <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore((idbRequest.source as IDBObjectStore).name)}/>
             </div>
-            <div className="m-4 flex">
-                <table className="table-fixed w-full">
+            <div className="p-10">
+                <table className="table-fixed w-full border-4">
                     <thead className="h-2">
                         <tr>
                             {headings}

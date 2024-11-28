@@ -80,10 +80,10 @@ export default function ChooseDatabase() { // Displaying every database allowing
 
     return (
         <>
-            <div className="text-center">
+            <div className="text-center p-10">
                 <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
                 <br/>
-                <table className="table-fixed w-full border-2">
+                <table className="table-fixed w-full border-4">
                     <thead className="border-2">
                         <tr>
                             <th>Database Name</th>

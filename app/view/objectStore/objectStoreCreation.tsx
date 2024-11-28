@@ -113,23 +113,26 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
 
     return (
         <>
+
             <p className="text-xl font-bold underline">New Object Store Setup</p>
             <PrimaryButton text="Create Index" clicked={newIndex}/>
-            <table className="m-4 table-fixed w-full">
-                <thead>
-                    <tr>
-                        {indexRows}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        {keyCheckboxes}
-                    </tr>
-                    <tr>
-                        {deleteButtons}
-                    </tr>
-                </tbody>
-            </table>
+            <div className="p-10">
+                <table className="table-fixed w-full border-4">
+                    <thead>
+                        <tr>
+                            {indexRows}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {keyCheckboxes}
+                        </tr>
+                        <tr>
+                            {deleteButtons}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div className="p-10">
                 <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
                 <input className="text-center m-4 border-4 w-1/4" placeholder="Enter name..." id="objectStoreName" type="text" />

@@ -47,16 +47,16 @@ export default function DbLink({database, deleteDatabase}: {database: IDBDatabas
 
     return (
         <tr className="border-2">
-            <th>
+            <th className="border-2">
                 {database.name}
             </th>
-            <td>
+            <td className="border-2">
                 {database.version}
             </td>
-            <td className="truncate text-nowrap">
+            <td className="truncate text-nowrap border-2">
                 {objectStoreNames.length}: {getObjectStoreNamesString()}
             </td>
-            <td>
+            <td className="border-2">
                 <Link className="" href={{pathname: "/view", query: {database: database.name}}}>
                     <PrimaryButton text="Open Database" clicked={() => {}}/>
                 </Link>
