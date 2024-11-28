@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ObjectStore from "./objectStore/objectStoreDisplay";
 import ObjectStoreCreation from "./objectStore/objectStoreCreation";
-import { DBIndex } from "./databaseIndex";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
