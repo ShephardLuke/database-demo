@@ -62,6 +62,9 @@ export default function ChooseDatabase() { // Displaying every database allowing
 
     return (
         <>
+            <head>
+                <title>Database Demo</title>
+            </head>
             <div className="text-center">
                 <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
                 <br/>
