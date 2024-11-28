@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ObjectStore from "./objectStore/objectStoreDisplay";
 import ObjectStoreCreation from "./objectStore/objectStoreCreation";
+import { DatabaseIndex } from "./databaseIndex";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -130,7 +131,7 @@ export default function DatabaseDisplay() {
         return request
     }
 
-    function newObjectStore(name:string, indexes: DBIndex[], result: (success: boolean, message: string) => void) { // Adds object store to database
+    function newObjectStore(name:string, indexes: DatabaseIndex[], result: (success: boolean, message: string) => void) { // Adds object store to database
 
         if (!foundDatabase) {
             console.log("no database")
