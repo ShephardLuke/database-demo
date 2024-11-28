@@ -4,6 +4,17 @@ A demonstration of databases in the browser window using the [IndexedDB API](htt
 
 #### Pre-release version, everything is subject to change and bugs or crashes may occur.
 
+
+## Accessing the website
+The project can be accessed at https://database-demo.shephardluke.co.uk, or it can be downloaded and accessed locally.
+
+### Instructions using npm:
+To run locally, first clone or download the repository, then run 'npm install' in the directory to install all of the required packages.
+
+To run a local development server, run 'npm run dev'.
+
+Otherwise to create a static build, run 'npm run build' then use a package such as [http-server](https://www.npmjs.com/package/http-server) to locally run the build in the 'out' directory.
+
 ## How to use
 ### Database Menu (Main Page)
 When loading the webpage for the first time there will be no databases.
@@ -26,3 +37,4 @@ To delete a record, press the 'Delete Record' button on the right of the record.
 Changes are updated as soon as they are made.
 
 Closing the browser will still keep all of the databases with their object stores and records in persistant storage (IndexedDB).
+
