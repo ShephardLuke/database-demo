@@ -1,12 +1,14 @@
-export default function Footer() { // Global footer
-    const pk = require("../../package.json")
+export default function Footer() {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pk = require("../../package.json");
+    const repo = "database-demo";
     return (
-        <footer className="text-center">
-            <hr></hr>
-            <div className="p-10">
-                <p>Version {pk.version}</p>
-                <p>(Pre-release version, everything is subject to change and bugs or crashes may occur.)</p>
+        <>
+            <hr/>
+            <div className="text-center p-10">
+                <a className="font-bold underline text-xl" href={"https://github.com/shephardluke/" + repo}>View on GitHub</a>
+                <p className="text-lg">{repo} v{pk.version}</p>
             </div>
-        </footer>
+        </>
     )
 }
