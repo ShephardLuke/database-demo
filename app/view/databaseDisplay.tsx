@@ -174,7 +174,7 @@ export default function DatabaseDisplay() {
     }
 
     return (
-        <>  
+        <div className="text-center bg-dark-blue">  
             <div className="p-10">
                 <p className="text-center text-4xl font-bold underline whitespace-pre">{databaseName}</p>
                 <p className="text-3xl p-5">(Version {databaseVersion})</p>
@@ -182,6 +182,6 @@ export default function DatabaseDisplay() {
             <p className="text-xl pb-20">Object Stores ({objectStores.length} found):</p>
             {<ObjectStoreCreation newObjectStore={newObjectStore}/>}
             {objectStores}
-        </>
+        </div>
     )
 }

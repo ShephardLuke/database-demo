@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import Footer from "./footer/footer";
+import Footer from "./pageTemplates/footer";
 import DbLink from "./dbLink";
 import PrimaryButton from "./buttons/primaryButton";
 import SuccessMessage from "./messages/successMessage";
+import Header from "./pageTemplates/header";
 
 export default function ChooseDatabase() { // Displaying every database allowing the user to view them and choose one or create/delete them
 
@@ -100,7 +101,8 @@ export default function ChooseDatabase() { // Displaying every database allowing
 
     return (
         <>
-            <div className="text-center p-10">
+            <Header home={true}/>
+            <div className="text-center p-10 bg-dark-blue">
                 <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
                 <br/>
                 {databases.length > 0 ? dbTable : noDbTable}

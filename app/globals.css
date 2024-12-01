@@ -15,8 +15,14 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: white;
+  background: theme('colors.darkest-blue');
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+input {
+  color: white;
+  background: theme('colors.dark-blue');
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -26,5 +32,5 @@ td {
 }
 
 table {
-  background-color: #f3f4f6;
+  background-color: theme('colors.light-blue');
 }
