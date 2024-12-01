@@ -26,7 +26,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     function newIndex() { // Creates a new index and adds to array
         const newInputs = [...indexes];
         const length = newInputs.length;
-        if (length >= 10) {
+        if (length >= 8) {
             return;
         }
 
@@ -125,7 +125,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
             <>
                 <p>Use the interface below to create a new object store to hold records. Object stores need at least one key and at least 2 indexes</p>
                 <div className="p-10">
-                    <table className="table-fixed w-full border-4">
+                    <table className="table-fixed border-4">
                         <thead>
                             <tr>
                                 {indexRows}

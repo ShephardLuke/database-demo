@@ -26,11 +26,17 @@ input {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-td {
+td, th {
   text-wrap: wrap;
   word-break: break-all;
 }
 
 table {
   background-color: theme('colors.light-blue');
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button {
+  text-wrap: nowrap;
 }

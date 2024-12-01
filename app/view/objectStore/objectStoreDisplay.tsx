@@ -155,7 +155,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             {hidden? null:
                 <>
                     <div className="p-10">
-                        <table className="table-fixed w-full border-4">
+                        <table className="table-fixed border-4">
                             <thead className="h-2">
                                 <tr>
                                     {headings}
