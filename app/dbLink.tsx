@@ -53,7 +53,7 @@ export default function DbLink({database, deleteDatabase}: {database: IDBDatabas
             <td className="border-2">
                 {database.version}
             </td>
-            <td className="truncate text-nowrap border-2">
+            <td className="border-2">
                 {objectStoreNames.length}: {getObjectStoreNamesString()}
             </td>
             <td className="border-2">

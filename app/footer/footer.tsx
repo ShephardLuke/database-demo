@@ -5,9 +5,9 @@ export default function Footer() {
     return (
         <>
             <hr/>
-            <div className="text-center p-10">
-                <a className="font-bold underline text-xl" href={"https://github.com/shephardluke/" + repo}>View on GitHub</a>
-                <p className="text-lg">{repo} v{pk.version}</p>
+            <div className="text-center p-10 flex justify-center gap-4">
+            <p className="text-lg">{repo} v{pk.version}</p>
+            <a className="font-bold underline text-lg text-link" href={"https://github.com/shephardluke/" + repo}>View on GitHub</a>
             </div>
         </>
     )

@@ -11,7 +11,27 @@ export default function ChooseDatabase() { // Displaying every database allowing
     const [databases, setDatabases] = useState<IDBDatabaseInfo[]>([]);
     const [creationResult, setCreationResult] = useState<{success: boolean, text: string}>();
 
-    const databaseSelect = databases.map(database => <DbLink key={database.name} database={database} deleteDatabase={deleteDatabase}></DbLink>)
+    const databaseSelect = databases.map(database => <DbLink key={database.name} database={database} deleteDatabase={deleteDatabase}></DbLink>);
+    const dbTable = 
+    (
+        <table className="table-fixed w-full border-4">
+            <thead className="border-2">
+                <tr>
+                    <th>Database Name</th>
+                    <th>Database Version</th>
+                    <th>Object Stores</th>
+                    <th>Open Database</th>
+                    <th>Delete Database</th>
+                </tr>
+            </thead>
+            <tbody>
+                {databaseSelect}
+            </tbody> 
+        </table>    
+    )
+
+    const noDbTable = (<p>No databases found. To create a database type in the name below and press &lsquo;Create Database&rsquo;.</p>)
+
     useEffect(() => { // Get all databases
         async function getDatabases() {
             const databases = await indexedDB.databases()
@@ -83,20 +103,7 @@ export default function ChooseDatabase() { // Displaying every database allowing
             <div className="text-center p-10">
                 <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
                 <br/>
-                <table className="table-fixed w-full border-4">
-                    <thead className="border-2">
-                        <tr>
-                            <th>Database Name</th>
-                            <th>Database Version</th>
-                            <th>Object Stores</th>
-                            <th>Open Database</th>
-                            <th>Delete Database</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {databaseSelect}
-                    </tbody> 
-                </table>
+                {databases.length > 0 ? dbTable : noDbTable}
                 <div key={new Date().getTime()} className="p-10 text-center">
                     <SuccessMessage success={creationResult?.success} text={creationResult?.text}/>
                     <input className="text-center m-2 border-4 w-1/4" id="inputDatabaseName" placeholder="Enter Name..." />

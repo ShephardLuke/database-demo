@@ -19,3 +19,12 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+td {
+  text-wrap: wrap;
+  word-break: break-all;
+}
+
+table {
+  background-color: #f3f4f6;
+}

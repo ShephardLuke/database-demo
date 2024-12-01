@@ -13,6 +13,7 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
     const [indexes, setIndexes] = useState<string[]>([]);
     const [data, setData] = useState<{[key: string]: string}[]>([]);
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>()
+    const [hidden, setHidden] = useState<boolean>(true);
 
     const indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
@@ -33,8 +34,6 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         </tr>
     )
 
-    //deleteButtons.push()
-    
     useEffect(() => { // Get keys, indexes and records from given request
         idbRequest.onsuccess = () => {
             const result = idbRequest.result;
@@ -74,7 +73,16 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
             const sourceName = (idbRequest.source as IDBObjectStore).name;
             for (let i = 0; i < indexOrder.length; i++) {
                 const element = document.getElementById("input" + sourceName + indexOrder[i]) as HTMLInputElement;
-                newData[indexOrder[i]] = element.value
+                if (element.value.trim() == "") {
+                    if (keys.includes(indexOrder[i])) {
+                        setCreationMessage({success: false, text: "Keys cannot be empty."})
+                        return;
+                    }
+                    newData[indexOrder[i]] = "NULL";
+                } else {
+                    newData[indexOrder[i]] = element.value
+                }
+ 
             }
     
             const newRequest = objectStore.add(newData)
@@ -133,25 +141,34 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         }
     }
 
+    function toggleHidden() {
+        setHidden(!hidden);
+    }
+
     return (
-        <div className="mt-40 pb-10">
+        <div className="p-10 border-2">
             <p className="text-xl font-bold underline">{(idbRequest.source as IDBObjectStore).name}</p>
             <div className="flex justify-center">
-                <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore((idbRequest.source as IDBObjectStore).name)}/>
+                <PrimaryButton clicked={toggleHidden} text={(hidden ? "Show" : "Hide") + " Object Store"}/>
+                {hidden? null : <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore((idbRequest.source as IDBObjectStore).name)}/>}
             </div>
-            <div className="p-10">
-                <table className="table-fixed w-full border-4">
-                    <thead className="h-2">
-                        <tr>
-                            {headings}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {recordRows}
-                    </tbody>
-                </table>
-            </div>
-            <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
+            {hidden? null:
+                <>
+                    <div className="p-10">
+                        <table className="table-fixed w-full border-4">
+                            <thead className="h-2">
+                                <tr>
+                                    {headings}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recordRows}
+                            </tbody>
+                        </table>
+                    </div>
+                    <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
+                </>
+            }
         </div>
     )
 }
