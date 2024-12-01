@@ -15,7 +15,7 @@ export default function ChooseDatabase() { // Displaying every database allowing
     const databaseSelect = databases.map(database => <DbLink key={database.name} database={database} deleteDatabase={deleteDatabase}></DbLink>);
     const dbTable = 
     (
-        <table className="table-fixed w-full border-4">
+        <table className="table-fixed border-4">
             <thead className="border-2">
                 <tr>
                     <th>Database Name</th>

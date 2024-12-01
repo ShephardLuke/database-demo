@@ -29,6 +29,7 @@ input {
 td, th {
   text-wrap: wrap;
   word-break: break-all;
+  padding: 1rem;
 }
 
 table {
