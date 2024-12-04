@@ -1,4 +1,4 @@
-// header.tsx V1
+// website-shared v1.1
 
 import Link from "next/link";
 import { NameLink } from "./nameLink";
@@ -27,15 +27,15 @@ export default function Header({currentPage}: {currentPage?: string}) {
     const pageLinks = PAGES.map(page => {
         const label = page.getLabel();
         if (currentPage == label) {
-            return <div key={"currentPage"} className="underline">{page.generateElement()}</div>
+            return <div key={"currentPage"} className="underline header">{page.generateElement()}</div>
         } 
         return page.generateElement();
     })
 
     return (
-        <div className="flex justify-between p-10">
+        <div className="flex justify-between p-10 header">
             <Link className="basis-1/2 text-4xl" href={"/"}>{MAIN_TITLE}</Link>
-            <div key={"links"} className="basis-1/2 flex justify-around">
+            <div key={"links"} className="basis-1/2 flex justify-around header">
                 {pageLinks}
             </div>
         </div>

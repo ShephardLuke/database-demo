@@ -1,4 +1,4 @@
-// nameLink.tsx V1
+// website-shared v1.1
 
 export class NameLink {
     private label: string;

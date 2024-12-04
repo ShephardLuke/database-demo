@@ -1,4 +1,4 @@
-// footer.tsx V1
+// website-shared v1.1
 
 export default function Footer() {
     // eslint-disable-next-line @typescript-eslint/no-require-imports

@@ -1,3 +1,5 @@
+/* website-shared v1.1 */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -30,6 +32,14 @@ td, th {
   text-wrap: wrap;
   word-break: break-all;
   padding: 1rem;
+}
+
+div {
+  background-color: theme('colors.dark-blue');
+}
+
+.header {
+  background-color: theme('colors.darkest-blue');
 }
 
 table {

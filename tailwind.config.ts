@@ -1,3 +1,5 @@
+// website-shared v1.1
+
 import type { Config } from "tailwindcss";
 
 export default {
