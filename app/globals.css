@@ -41,3 +41,7 @@ table {
 button {
   text-wrap: nowrap;
 }
+
+a:hover {
+  color: grey
+}

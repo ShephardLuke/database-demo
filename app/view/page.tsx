@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import DatabaseDisplay from "./databaseDisplay";
-import Footer from "../pageTemplates/footer";
-import Header from "../pageTemplates/header";
+import Footer from "../website-shared/footer";
+import Header from "../website-shared/header";
 
 
 export default function View() { // Viewing one database

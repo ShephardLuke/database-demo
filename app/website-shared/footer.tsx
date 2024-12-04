@@ -1,3 +1,5 @@
+// footer.tsx V1
+
 export default function Footer() {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pk = require("../../package.json");
