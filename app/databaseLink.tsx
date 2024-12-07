@@ -3,7 +3,7 @@ import DeleteButton from "./buttons/deleteButton";
 import { useEffect, useState } from "react";
 import PrimaryButton from "./buttons/primaryButton";
 
-export default function DbLink({database, deleteDatabase}: {database: IDBDatabaseInfo, deleteDatabase: (database: IDBDatabaseInfo) => void}) { // Disaplying a summary of the database with the name being a link to the full database view page
+export default function DatabaseLink({database, deleteDatabase}: {database: IDBDatabaseInfo, deleteDatabase: (database: IDBDatabaseInfo) => void}) { // Disaplying a summary of the database with the name being a link to the full database view page
     
     const [objectStoreNames, setObjectStoreNames] = useState<string[]>([]);
 
@@ -57,7 +57,7 @@ export default function DbLink({database, deleteDatabase}: {database: IDBDatabas
                 {objectStoreNames.length}: {getObjectStoreNamesString()}
             </td>
             <td className="border-2">
-                <Link className="" href={{pathname: "/view", query: {database: database.name}}}>
+                <Link className="hover:text-white" href={{pathname: "/view", query: {database: database.name}}}>
                     <PrimaryButton text="Open Database" clicked={() => {}}/>
                 </Link>
             </td>

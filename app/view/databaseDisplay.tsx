@@ -4,9 +4,11 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import ObjectStore from "./objectStore/objectStoreDisplay";
+import ObjectStoreDisplay from "./objectStore/objectStoreDisplay";
 import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 import { DatabaseIndex } from "./databaseIndex";
+import PrimaryButton from "../buttons/primaryButton";
+import { ObjectStore } from "./objectStore";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -15,7 +17,13 @@ export default function DatabaseDisplay() {
     const [databaseName, setDatabaseName] = useState("Database Not Found")
     const [foundDatabase, setFoundDatabase] = useState(false);
     const [databaseVersion, setDatabaseVersion] = useState(0);
-    const [objectStores, setObjectStores] = useState<JSX.Element[]>([]);
+
+    const [objectStores, setObjectStores] = useState<ObjectStore[]>([]);
+
+    const [currentObjectStore, setCurrentObjectStore]  = useState<number | null>(null);
+
+    const objectStoreSelects = objectStores.map(store => {return <PrimaryButton key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
+    objectStoreSelects.unshift(<PrimaryButton key={-1} text={"New Object Store"} clicked={() => {setCurrentObjectStore(-1)}}/>)
 
     useEffect(() => { // Find the database if it exists
         async function getObjectStores() {
@@ -44,49 +52,23 @@ export default function DatabaseDisplay() {
 
     useEffect(() => { // When database is found open it
 
-        function deleteObjectStore(store: string) { // Deletes object store from database
-            if (!foundDatabase) {
-                console.log("no database")
-                return;
-            }
-    
-            const newVersion = databaseVersion + 1;
-    
-            const request = window.indexedDB.open(databaseName, newVersion);
-    
-            request.onsuccess = () => {
-                setDatabaseVersion(request.result.version)
-                request.result.close();
-            }
-    
-            request.onerror = () => {
-                console.error(request)
-                request.result.close();
-            }
-    
-            request.onupgradeneeded = () => {
-                const newdb = request.result;
-    
-                newdb.deleteObjectStore(store)
-            }
-        }    
-
         function updateObjectStores(db: IDBDatabase) { // Create an array to display each object store
             if (db.objectStoreNames.length == 0) {
                 setObjectStores([])
                 db.close()
                 return;
             }
-            const allObjectStores: JSX.Element[] = [];
+            const allObjectStores: ObjectStore[] = [];
             const transaction = db.transaction([... db.objectStoreNames]);
     
             for (const name of [... db.objectStoreNames]) {
                 const objectStore = transaction.objectStore(name);
     
-                allObjectStores.push(<ObjectStore key={name} idbRequest={objectStore.getAll()} deleteObjectStore={deleteObjectStore}></ObjectStore>)
+                allObjectStores.push(new ObjectStore(name, objectStore.getAll()))
             }  
-            setObjectStores(allObjectStores)
+
             transaction.oncomplete = () => {
+                setObjectStores(allObjectStores)
                 db.close()
             }     
             transaction.onerror = () => {
@@ -138,6 +120,13 @@ export default function DatabaseDisplay() {
             return;
         }
 
+        for (const store of objectStores) {
+            if (store.getName() == name) {
+                result(false, "Object store with the name " + name + " alreay exists.");
+                return;
+            }
+        }
+
         const request = openDatabase()
 
         request.onupgradeneeded = () => {
@@ -173,15 +162,49 @@ export default function DatabaseDisplay() {
 
     }
 
+    
+    function deleteObjectStore(store: string) { // Deletes object store from database
+        if (!foundDatabase) {
+            console.log("no database")
+            return;
+        }
+
+        const newVersion = databaseVersion + 1;
+
+        const request = window.indexedDB.open(databaseName, newVersion);
+
+        request.onsuccess = () => {
+            setDatabaseVersion(request.result.version)
+            request.result.close();
+        }
+
+        request.onerror = () => {
+            console.error(request)
+            request.result.close();
+        }
+
+        request.onupgradeneeded = () => {
+            const newdb = request.result;
+
+            newdb.deleteObjectStore(store)
+        }
+
+        setCurrentObjectStore(null)
+    }    
+
     return (
         <div className="text-center bg-dark-blue">  
             <div className="p-10">
                 <p className="text-center text-4xl font-bold underline whitespace-pre">{databaseName}</p>
                 <p className="text-3xl p-5">(Version {databaseVersion})</p>
             </div>
-            <p className="text-xl pb-20">Object Stores ({objectStores.length} found):</p>
-            {<ObjectStoreCreation newObjectStore={newObjectStore}/>}
-            {objectStores}
+            <p className="text-xl">Object Stores ({objectStores.length} found):</p>
+            {objectStoreSelects}
+            <div className="p-5">
+                {currentObjectStore == null || currentObjectStore == -1 ? null : <ObjectStoreDisplay objectStore={objectStores[currentObjectStore]} deleteObjectStore={deleteObjectStore} />}
+                {currentObjectStore == -1 ? <ObjectStoreCreation newObjectStore={newObjectStore} />: null}
+            </div>
+
         </div>
     )
 }

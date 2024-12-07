@@ -19,8 +19,8 @@ export default function Header({currentPage}: {currentPage?: string}) {
     const MAIN_TITLE = "Database Demo";
     
     const PAGES = [
-        new NavLink("Databases", "/"),
-        new NameLink("View on Github", "https://github.com/shephardluke/"),
+        new NavLink("All Databases", "/"),
+        new NameLink("View on Github", "https://github.com/shephardluke/database-demo"),
         new NameLink("Main Website", "https://shephardluke.co.uk")
     ]
 

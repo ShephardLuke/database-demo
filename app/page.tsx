@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Footer from "./website-shared/footer";
-import DbLink from "./dbLink";
 import PrimaryButton from "./buttons/primaryButton";
 import SuccessMessage from "./messages/successMessage";
 import Header from "./website-shared/header";
+import DatabaseLink from "./databaseLink";
 
 export default function ChooseDatabase() { // Displaying every database allowing the user to view them and choose one or create/delete them
 
     const [databases, setDatabases] = useState<IDBDatabaseInfo[]>([]);
     const [creationResult, setCreationResult] = useState<{success: boolean, text: string}>();
 
-    const databaseSelect = databases.map(database => <DbLink key={database.name} database={database} deleteDatabase={deleteDatabase}></DbLink>);
+    const databaseSelect = databases.map(database => <DatabaseLink key={database.name} database={database} deleteDatabase={deleteDatabase}/>);
     const dbTable = 
     (
         <table className="table-fixed border-4">
@@ -101,7 +101,7 @@ export default function ChooseDatabase() { // Displaying every database allowing
 
     return (
         <>
-            <Header currentPage="Databases"/>
+            <Header currentPage="All Databases"/>
             <div className="text-center p-10 bg-dark-blue">
                 <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
                 <br/>

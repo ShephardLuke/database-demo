@@ -6,26 +6,32 @@ import PrimaryButton from "../../buttons/primaryButton";
 import DeleteButton from "../../buttons/deleteButton";
 import DatabaseInput from "../input/databaseInput";
 import SuccessMessage from "@/app/messages/successMessage";
+import { ObjectStore } from "../objectStore";
 
-export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idbRequest: IDBRequest<{[key: string]: string}[]>, deleteObjectStore: (name: string) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
+export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {objectStore: ObjectStore, deleteObjectStore: (name: string) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
-    const [keys, setKeys] = useState<string[]>([]);
-    const [indexes, setIndexes] = useState<string[]>([]);
-    const [data, setData] = useState<{[key: string]: string}[]>([]);
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>()
-    const [hidden, setHidden] = useState<boolean>(true);
+
+    const keys = objectStore.getKeys();
+    const indexes = objectStore.getIndexes();
+    const [records, setRecords] = useState<{[key: string]: string}[]>([]);
 
     const indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
     const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
     headings.push(<th key={"-1"} className="border-solid">Option</th>)
 
-    const recordRows = data.map(record => <Record key={Object.values(record).toString()} deleteRecord={deleteRecord} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
-
     const inputs = []; // Add inputs for adding a new record
     for (const index of indexOrder) {
-        inputs.push(<td className="border-2" key={index}><DatabaseInput id={"input" + (idbRequest.source as IDBObjectStore).name + index} placeholder={"Enter " + index + "..."}/></td>)
+        inputs.push(<td className="border-2" key={index}><DatabaseInput id={"input" + objectStore.getName() + index} placeholder={"Enter " + index + "..."}/></td>)
     }
+
+    useEffect(() => {
+        setRecords(objectStore.getRecords());
+    }, [objectStore])
+
+
+    const recordRows = records.map(record => <Record key={Object.values(record).toString()} deleteRecord={deleteRecord} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
     recordRows.push(
         <tr className="border-2" key={recordRows.length}>
@@ -34,23 +40,8 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         </tr>
     )
 
-    useEffect(() => { // Get keys, indexes and records from given request
-        idbRequest.onsuccess = () => {
-            const result = idbRequest.result;
-            const source = idbRequest.source as IDBObjectStore
-            const indexes = [... source.indexNames];
-    
-            
-            setKeys(typeof source.keyPath == "string" ? [source.keyPath] : source.keyPath)
-            setIndexes(indexes)
-            setData(result);
-        }
-    
-    }, [idbRequest])
-
     function openDatabase() { // Opens database from request
-        const source = idbRequest.source as IDBObjectStore
-        const request = window.indexedDB.open(source.transaction.db.name);
+        const request = window.indexedDB.open(objectStore.getSource().transaction.db.name);
 
         request.onerror = (event) => {
             console.error(event)
@@ -63,16 +54,16 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         const request = openDatabase();
 
         request.onsuccess = () => {
-            const name = (idbRequest.source as IDBObjectStore).name
+            const name = objectStore.getName()
             const db = request.result
 
             const transaction = db.transaction([name], "readwrite")
-            const objectStore = transaction.objectStore(name);
+            const dbObjectStore = transaction.objectStore(name);
     
             const newData: {[key: string]: string} = {}
-            const sourceName = (idbRequest.source as IDBObjectStore).name;
+
             for (let i = 0; i < indexOrder.length; i++) {
-                const element = document.getElementById("input" + sourceName + indexOrder[i]) as HTMLInputElement;
+                const element = document.getElementById("input" + name + indexOrder[i]) as HTMLInputElement;
                 if (element.value.trim() == "") {
                     if (keys.includes(indexOrder[i])) {
                         setCreationMessage({success: false, text: "Keys cannot be empty."})
@@ -85,9 +76,11 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
  
             }
     
-            const newRequest = objectStore.add(newData)
+            const newRequest = dbObjectStore.add(newData)
             newRequest.onsuccess = () => {
-                setData([...data, newData])
+                const newRecords = [... records, newData]
+                setRecords(newRecords);
+                objectStore.setRecords(newRecords);
             }
             
             transaction.onerror = (event) => {
@@ -110,11 +103,11 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         const request = openDatabase();
 
         request.onsuccess = () => {
-            const name = (idbRequest.source as IDBObjectStore).name
+            const name = objectStore.getName();
             const db = request.result
 
             const transaction = db.transaction([name], "readwrite")
-            const objectStore = transaction.objectStore(name);
+            const dbObjectStore = transaction.objectStore(name);
 
             let toDelete: IDBValidKey = [];
 
@@ -126,13 +119,14 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
                 }
             }
 
-            objectStore.delete(toDelete)
+            dbObjectStore.delete(toDelete)
 
             transaction.oncomplete = () => {
-                const newData = [... data];
-                newData.splice(data.indexOf(record), 1);
+                const newRecords = [...records];
+                newRecords.splice(newRecords.indexOf(record), 1);
+                setRecords(newRecords)
+                objectStore.setRecords(newRecords);
                 db.close()
-                setData(newData)
             }
         }
 
@@ -141,34 +135,25 @@ export default function ObjectStoreDisplay({idbRequest, deleteObjectStore}: {idb
         }
     }
 
-    function toggleHidden() {
-        setHidden(!hidden);
-    }
-
     return (
-        <div className="p-10 border-2">
-            <p className="text-xl font-bold underline">{(idbRequest.source as IDBObjectStore).name}</p>
-            <div className="flex justify-center">
-                <PrimaryButton clicked={toggleHidden} text={(hidden ? "Show" : "Hide") + " Object Store"}/>
-                {hidden? null : <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore((idbRequest.source as IDBObjectStore).name)}/>}
-            </div>
-            {hidden? null:
-                <>
-                    <div className="p-10">
-                        <table className="table-fixed border-4">
-                            <thead className="h-2">
-                                <tr>
-                                    {headings}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {recordRows}
-                            </tbody>
-                        </table>
-                    </div>
-                    <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
-                </>
-            }
+        <div>
+            <p className="text-xl font-bold underline">{objectStore.getName()}</p>
+            <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore(objectStore.getName())}/>
+            <>
+                <div className="p-10 overflow-x-auto">
+                    <table className="table-fixed border-4">
+                        <thead className="h-2">
+                            <tr>
+                                {headings}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {recordRows}
+                        </tbody>
+                    </table>
+                </div>
+                <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
+            </>
         </div>
     )
 }

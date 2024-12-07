@@ -115,7 +115,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     }
 
     return (
-        <div className="border-2 p-10">
+        <div>
             <p className="text-xl font-bold underline">New Object Store Setup</p>
             <div className="flex justify-center">
                 <PrimaryButton text={(hidden? "Show" : "Hide") + " Setup"} clicked={toggleHidden}/>
