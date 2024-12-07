@@ -100,7 +100,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
         newObjectStore(nameInput.value, indexes, dbResult);
     }
 
-    function dbResult(success: boolean, message: string) {
+    function dbResult(success: boolean, message: string) { // Called from databaseDisplay after requesting to create the object store
         if (success) {
             setIndexes(getDefaultIndexes);
             (document.getElementById("objectStoreName") as HTMLInputElement).value = "";

@@ -1,4 +1,4 @@
-export class ObjectStore {
+export class ObjectStore { // Class to hold all of the info when requesting an object store
     private name: string
     private source: IDBObjectStore;
     private keys: string[];
@@ -11,7 +11,6 @@ export class ObjectStore {
         this.keys = [];
         this.indexes = [];
         this.records = [];
-
 
         idbRequest.onsuccess = () => {
             this.source = idbRequest.source as IDBObjectStore;
