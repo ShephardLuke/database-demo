@@ -11,7 +11,6 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     const [idPointer, setIdPointer] = useState<number>(0);
     const [indexes, setIndexes] = useState<DatabaseIndex[]>(getDefaultIndexes);
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>();
-    const [hidden, setHidden] = useState<boolean>(false);
 
     const indexRows = indexes.map(index => {return <DatabaseIndexDisplay key={index.id} text={<DatabaseInput underline={index.isKey} id={"name" + index.id} placeholder={"Enter index..."}/>}/>})
 
@@ -110,44 +109,33 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
         setCreationMessage({success: success, text: message});
     }
 
-    function toggleHidden() {
-        setHidden(!hidden);
-    }
-
     return (
         <div>
             <p className="text-xl font-bold underline">New Object Store Setup</p>
-            <div className="flex justify-center">
-                <PrimaryButton text={(hidden? "Show" : "Hide") + " Setup"} clicked={toggleHidden}/>
-                {hidden? null: <PrimaryButton text="Create Index" clicked={newIndex}/>}
+            <p className="pt-5">Use the interface below to create a new object store to hold records. Object stores need at least one key and at least 2 indexes</p>
+            {<PrimaryButton text="Create Index" clicked={newIndex}/>}
+            <div className="p-10">
+                <table className="table-fixed border-4">
+                    <thead>
+                        <tr>
+                            {indexRows}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {keyCheckboxes}
+                        </tr>
+                        <tr>
+                            {deleteButtons}
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            {hidden? null:
-            <>
-                <p>Use the interface below to create a new object store to hold records. Object stores need at least one key and at least 2 indexes</p>
-                <div className="p-10">
-                    <table className="table-fixed border-4">
-                        <thead>
-                            <tr>
-                                {indexRows}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                {keyCheckboxes}
-                            </tr>
-                            <tr>
-                                {deleteButtons}
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div>
-                    <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
-                    <input className="text-center m-4 border-4 w-1/4" placeholder="Enter name..." id="objectStoreName" type="text" />
-                    <PrimaryButton text="Create Object Store" clicked={() => {exportIndexes()}}/>
-                </div>
-            </>
-            }
+            <div>
+                <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
+                <input className="text-center m-4 border-4 w-1/4" placeholder="Enter name..." id="objectStoreName" type="text" />
+                <PrimaryButton text="Create Object Store" clicked={() => {exportIndexes()}}/>
+            </div>
         </div>
     )
 }
