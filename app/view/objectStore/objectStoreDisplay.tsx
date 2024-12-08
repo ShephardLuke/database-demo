@@ -7,11 +7,11 @@ import DeleteButton from "../../buttons/deleteButton";
 import DatabaseInput from "../input/databaseInput";
 import SuccessMessage from "@/app/messages/successMessage";
 import { ObjectStore } from "../objectStore";
+import { saveAs } from "file-saver";
 
 export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {objectStore: ObjectStore, deleteObjectStore: (name: string) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>()
-
     const keys = objectStore.getKeys();
     const indexes = objectStore.getIndexes();
     const [records, setRecords] = useState<{[key: string]: string}[]>([]);
@@ -136,14 +136,8 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     }
 
     function createCSV() {
-        const url = window.URL.createObjectURL(new Blob([objectStore.toCSV()], {type: "text/plain"}));
-        console.log(url);
-        const a = document.createElement("a");
-        a.href = url
-        a.download = objectStore.getName() + ".csv";
-        document.body.appendChild(a);
-        a.click()
-        document.body.removeChild(a);
+        const file = new Blob([objectStore.toCSV()], {type: "text/plain"});
+        saveAs(file, objectStore.getName() + ".csv");
     }
 
     return (
