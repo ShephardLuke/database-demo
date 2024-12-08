@@ -10,6 +10,7 @@ import { DatabaseIndex } from "./databaseIndex";
 import PrimaryButton from "../buttons/primaryButton";
 import { ObjectStore } from "./objectStore";
 import Link from "next/link";
+import SecondaryButton from "../buttons/secondaryButton";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -23,7 +24,7 @@ export default function DatabaseDisplay() {
 
     const [currentObjectStore, setCurrentObjectStore]  = useState<number | null>(null);
 
-    const objectStoreSelects = objectStores.map(store => {return <PrimaryButton key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
+    const objectStoreSelects = objectStores.map(store => {return <SecondaryButton key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
     objectStoreSelects.unshift(<PrimaryButton key={-1} text={"New Object Store"} clicked={() => {setCurrentObjectStore(-1)}}/>)
 
     useEffect(() => { // Find the database if it exists

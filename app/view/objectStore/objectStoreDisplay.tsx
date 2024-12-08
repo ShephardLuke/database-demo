@@ -36,7 +36,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     recordRows.push(
         <tr className="border-2" key={recordRows.length}>
             {inputs}
-            <td><PrimaryButton key={"new"} text="Create Record" clicked={newRecord}></PrimaryButton></td>
+            <td><PrimaryButton key={"new"} text="Create Record" clicked={newRecord}/></td>
         </tr>
     )
 
@@ -135,10 +135,22 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
         }
     }
 
+    function createCSV() {
+        const url = window.URL.createObjectURL(new Blob([objectStore.toCSV()], {type: "text/plain"}));
+        console.log(url);
+        const a = document.createElement("a");
+        a.href = url
+        a.download = objectStore.getName() + ".csv";
+        document.body.appendChild(a);
+        a.click()
+        document.body.removeChild(a);
+    }
+
     return (
         <div>
             <p className="text-xl font-bold underline">{objectStore.getName()}</p>
             <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore(objectStore.getName())}/>
+            <PrimaryButton text="Export to CSV" clicked={createCSV}/>
             <>
                 <div className="p-10 overflow-x-auto">
                     <table className="table-fixed border-4">

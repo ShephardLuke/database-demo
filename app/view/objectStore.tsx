@@ -45,4 +45,37 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
         return this.indexes;
     }
 
+    toCSV() {
+        let output = "";
+
+        const allIndexes = this.keys.concat(this.indexes);
+        for (let i = 0; i < allIndexes.length; i++) {
+            const currentIndex = allIndexes[i];
+            output += currentIndex;
+            if (i < allIndexes.length - 1) {
+                output += ",";
+            }
+        }
+
+        output += "\n";
+
+        for (let i = 0; i < this.records.length; i++) {
+            const currentRecord = this.records[i];
+            for (let j = 0; j < allIndexes.length; j++) {
+                const currentData = currentRecord[allIndexes[j]];
+                output += currentData
+                if (j < allIndexes.length - 1) {
+                    output += ",";
+                }
+
+            }
+
+            if (i < this.records.length - 1) {
+                output += "\n";
+            }
+        }
+        
+        return output;
+    }
+
 }
