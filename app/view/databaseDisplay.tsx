@@ -9,6 +9,7 @@ import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 import { DatabaseIndex } from "./databaseIndex";
 import PrimaryButton from "../buttons/primaryButton";
 import { ObjectStore } from "./objectStore";
+import Link from "next/link";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -194,16 +195,26 @@ export default function DatabaseDisplay() {
 
     return (
         <div className="text-center bg-dark-blue">  
-            <div className="p-10">
-                <p className="text-center text-4xl font-bold underline whitespace-pre">{databaseName}</p>
-                <p className="text-3xl p-5">(Version {databaseVersion})</p>
+        {foundDatabase ? 
+            <>
+                <div className="p-10">
+                    <p className="text-center text-4xl font-bold underline whitespace-pre">{databaseName}</p>
+                    <p className="text-3xl p-5">(Version {databaseVersion})</p>
+                </div>
+                <p className="text-xl">Object Stores ({objectStores.length} found):</p>
+                {objectStoreSelects}
+                <div className="p-5">
+                    {currentObjectStore == null || currentObjectStore == -1 ? null : <ObjectStoreDisplay objectStore={objectStores[currentObjectStore]} deleteObjectStore={deleteObjectStore} />}
+                    {currentObjectStore == -1 ? <ObjectStoreCreation newObjectStore={newObjectStore} />: null}
+                </div> 
+            </>
+            :
+            <div className="p-5">  
+            
+                <p className="text-center text-4xl font-bold underline whitespace-pre p-5">Database Not Found.</p>
+                <p><Link className="text-3xl" href="./">Click here to return to database menu.</Link></p>
             </div>
-            <p className="text-xl">Object Stores ({objectStores.length} found):</p>
-            {objectStoreSelects}
-            <div className="p-5">
-                {currentObjectStore == null || currentObjectStore == -1 ? null : <ObjectStoreDisplay objectStore={objectStores[currentObjectStore]} deleteObjectStore={deleteObjectStore} />}
-                {currentObjectStore == -1 ? <ObjectStoreCreation newObjectStore={newObjectStore} />: null}
-            </div>
+        }
 
         </div>
     )

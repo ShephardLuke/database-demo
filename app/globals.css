@@ -55,3 +55,8 @@ button {
 a:hover {
   color: grey
 }
+
+p a {
+  color: coral;
+  text-decoration: underline;
+}
