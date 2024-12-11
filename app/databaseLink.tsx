@@ -1,7 +1,7 @@
 import Link from "next/link";
-import DeleteButton from "./buttons/deleteButton";
 import { useEffect, useState } from "react";
-import SecondaryButton from "./buttons/secondaryButton";
+import Button from "./template/buttons/button";
+import WarningButton from "./template/buttons/warningButton";
 
 export default function DatabaseLink({database, deleteDatabase}: {database: IDBDatabaseInfo, deleteDatabase: (database: IDBDatabaseInfo) => void}) { // Disaplying a summary of the database with the name being a link to the full database view page
     
@@ -58,11 +58,11 @@ export default function DatabaseLink({database, deleteDatabase}: {database: IDBD
             </td>
             <td className="border-2">
                 <Link className="hover:text-white" href={{pathname: "/view", query: {database: database.name}}}>
-                    <SecondaryButton text="Open Database" clicked={() => {}}/>
+                    <Button text="Open Database" clicked={() => {}}/>
                 </Link>
             </td>
             <td>
-                <DeleteButton text="Delete Database" clicked={() => {deleteDatabase(database)}}/>
+                <WarningButton text="Delete Database" clicked={() => {deleteDatabase(database)}}/>
             </td>
         </tr>
     )

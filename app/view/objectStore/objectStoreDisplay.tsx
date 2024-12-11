@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Record from "./record/record";
-import PrimaryButton from "../../buttons/primaryButton";
-import DeleteButton from "../../buttons/deleteButton";
 import DatabaseInput from "../input/databaseInput";
-import SuccessMessage from "@/app/messages/successMessage";
+import SuccessMessage from "@/app/message/successMessage";
 import { ObjectStore } from "../objectStore";
 import { saveAs } from "file-saver";
+import SubmitButton from "@/app/template/buttons/submitButton";
+import WarningButton from "@/app/template/buttons/warningButton";
 
 export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {objectStore: ObjectStore, deleteObjectStore: (name: string) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
@@ -36,7 +36,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     recordRows.push(
         <tr className="border-2" key={recordRows.length}>
             {inputs}
-            <td><PrimaryButton key={"new"} text="Create Record" clicked={newRecord}/></td>
+            <td><SubmitButton key={"new"} text="Create Record" clicked={newRecord}/></td>
         </tr>
     )
 
@@ -142,11 +142,15 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
 
     return (
         <div>
-            <p className="text-xl font-bold underline">{objectStore.getName()}</p>
-            <DeleteButton classAdd="flex-1 max-w-40" text="Delete Object Store" clicked={() => deleteObjectStore(objectStore.getName())}/>
-            <PrimaryButton text="Export to CSV" clicked={createCSV}/>
+            <p className="text-xl font-bold underline pb-5">{objectStore.getName()}</p>
+
+            <div className="flex gap-4 justify-center">
+                <WarningButton text="Delete Object Store" clicked={() => deleteObjectStore(objectStore.getName())}/>
+                <SubmitButton text="Export to CSV" clicked={createCSV}/>
+            </div>
+
             <>
-                <div className="p-10 overflow-x-auto">
+                <div className="p-5 overflow-x-auto">
                     <table className="table-fixed border-4">
                         <thead className="h-2">
                             <tr>

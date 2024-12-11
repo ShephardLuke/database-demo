@@ -1,18 +1,8 @@
-// website-shared v1.1
+// website-template v1.2
 
 import Link from "next/link";
-import { NameLink } from "./nameLink";
-import { JSX } from "react";
-
-class NavLink extends NameLink {
-    constructor(label: string, customLink?: string) {
-        super(label, customLink ? customLink : "/" + label.toLowerCase())
-    }    
-
-    generateElement(): JSX.Element {
-        return <Link key={this.getLabel()} className="text-2xl" href={this.getLink()}>{this.getLabel()}</Link>
-    }
-}
+import { NavLink } from "../link/navLink";
+import { NameLink } from "../link/nameLink";
 
 export default function Header({currentPage}: {currentPage?: string}) {
 
@@ -35,7 +25,7 @@ export default function Header({currentPage}: {currentPage?: string}) {
     return (
         <div className="flex justify-between p-10 header">
             <Link className="basis-1/2 text-4xl" href={"/"}>{MAIN_TITLE}</Link>
-            <div key={"links"} className="basis-1/2 flex justify-around header">
+            <div key={"links"} className="basis-1/2 flex justify-around header text-2xl">
                 {pageLinks}
             </div>
         </div>

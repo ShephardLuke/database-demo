@@ -1,4 +1,4 @@
-/* website-shared v1.1 */
+/* website-template v1.2 */
 
 @tailwind base;
 @tailwind components;
@@ -17,14 +17,14 @@
 }
 
 body {
-  color: white;
+  color: #f5f5f5; /* neutral-100 */
   background: theme('colors.darkest-blue');
   font-family: Arial, Helvetica, sans-serif;
 }
 
 input {
-  color: white;
-  background: theme('colors.dark-blue');
+  color: #f5f5f5;
+  background: theme('colors.light-blue');
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -36,6 +36,10 @@ td, th {
 
 div {
   background-color: theme('colors.dark-blue');
+}
+
+.main {
+  padding: 2.5rem;
 }
 
 .header {
@@ -53,10 +57,30 @@ button {
 }
 
 a:hover {
-  color: grey
+  color: #a3a3a3 /* neutral-400 */
+}
+
+a:active { 
+  color: #525252; /* neutral-600 */
+}
+
+h1 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  text-decoration: underline;
+  padding-bottom: 2.5rem;
 }
 
 p a {
-  color: coral;
+  color: #fbbf24; /* amber-400 */
   text-decoration: underline;
 }
+
+p a:hover {
+  color: #f59e0b; /* amber-500 */
+}
+
+p a:active { 
+  color: #d97706; /* amber-600 */
+}
+

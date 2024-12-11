@@ -7,25 +7,45 @@ import { useEffect, useState } from "react";
 import ObjectStoreDisplay from "./objectStore/objectStoreDisplay";
 import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 import { DatabaseIndex } from "./databaseIndex";
-import PrimaryButton from "../buttons/primaryButton";
 import { ObjectStore } from "./objectStore";
 import Link from "next/link";
-import SecondaryButton from "../buttons/secondaryButton";
+import Button from "../template/buttons/button";
+import SubmitButton from "../template/buttons/submitButton";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
     const searchName = searchParams.get("database");
 
-    const [databaseName, setDatabaseName] = useState("Database Not Found")
-    const [foundDatabase, setFoundDatabase] = useState(false);
+    const [databaseName, setDatabaseName] = useState("Unknown")
+    const [foundDatabase, setFoundDatabase] = useState<boolean | null>(null);
     const [databaseVersion, setDatabaseVersion] = useState(0);
+
+    let errorMessage = <></>;
+
+    if (foundDatabase == false) {
+        errorMessage =                 
+           (
+                <div className="p-5">  
+                    <p className="text-center text-4xl font-bold underline whitespace-pre p-5">Database Not Found.</p>
+                    <p><Link className="text-3xl" href="./">Click here to return to database menu.</Link></p>
+                </div>
+           );
+
+    } else if (foundDatabase == null) {
+        errorMessage = 
+        (
+            <div className="p-5">  
+                <p className="text-center text-4xl font-bold underline whitespace-pre p-5">Loading database...</p>
+            </div>
+        )
+    }
 
     const [objectStores, setObjectStores] = useState<ObjectStore[]>([]);
 
     const [currentObjectStore, setCurrentObjectStore]  = useState<number | null>(null);
 
-    const objectStoreSelects = objectStores.map(store => {return <SecondaryButton key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
-    objectStoreSelects.unshift(<PrimaryButton key={-1} text={"New Object Store"} clicked={() => {setCurrentObjectStore(-1)}}/>)
+    const objectStoreSelects = objectStores.map(store => {return <Button key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
+    objectStoreSelects.unshift(<SubmitButton key={-1} text={"New Object Store"} clicked={() => {setCurrentObjectStore(-1)}}/>)
 
     useEffect(() => { // Find the database if it exists
         async function getObjectStores() {
@@ -42,6 +62,7 @@ export default function DatabaseDisplay() {
             }
 
             if (!found) {
+                setFoundDatabase(false);
                 return
             }
 
@@ -195,7 +216,7 @@ export default function DatabaseDisplay() {
     }    
 
     return (
-        <div className="text-center bg-dark-blue">  
+        <div className="text-center">  
         {foundDatabase ? 
             <>
                 <div className="p-10">
@@ -203,18 +224,16 @@ export default function DatabaseDisplay() {
                     <p className="text-3xl p-5">(Version {databaseVersion})</p>
                 </div>
                 <p className="text-xl">Object Stores ({objectStores.length} found):</p>
-                {objectStoreSelects}
+                <div className="p-5 flex gap-5 justify-center">
+                    {objectStoreSelects}
+                </div>
                 <div className="p-5">
                     {currentObjectStore == null || currentObjectStore == -1 ? null : <ObjectStoreDisplay objectStore={objectStores[currentObjectStore]} deleteObjectStore={deleteObjectStore} />}
                     {currentObjectStore == -1 ? <ObjectStoreCreation newObjectStore={newObjectStore} />: null}
                 </div> 
             </>
             :
-            <div className="p-5">  
-            
-                <p className="text-center text-4xl font-bold underline whitespace-pre p-5">Database Not Found.</p>
-                <p><Link className="text-3xl" href="./">Click here to return to database menu.</Link></p>
-            </div>
+            errorMessage
         }
 
         </div>

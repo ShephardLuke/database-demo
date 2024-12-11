@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import Footer from "./website-shared/footer";
-import PrimaryButton from "./buttons/primaryButton";
-import SuccessMessage from "./messages/successMessage";
-import Header from "./website-shared/header";
+import Footer from "./template/global/footer";
+import SuccessMessage from "./message/successMessage";
+import Header from "./template/global/header";
 import DatabaseLink from "./databaseLink";
+import SubmitButton from "./template/buttons/submitButton";
 
 export default function ChooseDatabase() { // Displaying every database allowing the user to view them and choose one or create/delete them
 
@@ -102,14 +102,14 @@ export default function ChooseDatabase() { // Displaying every database allowing
     return (
         <>
             <Header currentPage="All Databases"/>
-            <div className="text-center p-10 bg-dark-blue">
+            <div className="main text-center">
                 <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
                 <br/>
                 {databases.length > 0 ? dbTable : noDbTable}
                 <div key={new Date().getTime()} className="p-10 text-center">
                     <SuccessMessage success={creationResult?.success} text={creationResult?.text}/>
                     <input className="text-center m-2 border-4 w-1/4" id="inputDatabaseName" placeholder="Enter Name..." />
-                    <PrimaryButton text="Create Database" clicked={newDatabase}></PrimaryButton>
+                    <SubmitButton text="Create Database" clicked={newDatabase}/>
                 </div>
             </div>
             <Footer></Footer>

@@ -1,8 +1,8 @@
-// website-shared v1.1
+// website-template v1.2
 
 export default function Footer() {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pk = require("../../package.json");
+    const pk = require("../../../package.json");
     const repo = pk.name;
     return (
         <>

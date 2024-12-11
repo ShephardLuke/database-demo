@@ -1,4 +1,6 @@
-// website-shared v1.1
+// website-template v1.2
+
+import React from "react";
 
 export class NameLink {
     private label: string;
@@ -17,7 +19,7 @@ export class NameLink {
         return this.link;
     }
 
-    generateElement(): JSX.Element {
-        return <a key={this.getLabel()} className="text-2xl" href={this.getLink()}>{this.getLabel()}</a>
+    generateElement(): React.JSX.Element {
+        return <a key={this.getLabel()} href={this.getLink()}>{this.getLabel()}</a>
     }
 }

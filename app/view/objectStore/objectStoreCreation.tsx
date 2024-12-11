@@ -1,10 +1,10 @@
 import { MouseEvent, useState } from "react";
-import PrimaryButton from "../../buttons/primaryButton";
 import DatabaseIndexDisplay from "../table/databaseIndexDisplay";
 import DatabaseInput from "../input/databaseInput";
-import DeleteButton from "../../buttons/deleteButton";
-import SuccessMessage from "@/app/messages/successMessage";
+import SuccessMessage from "@/app/message/successMessage";
 import { DatabaseIndex } from "../databaseIndex";
+import SubmitButton from "@/app/template/buttons/submitButton";
+import WarningButton from "@/app/template/buttons/warningButton";
 
 export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (name: string, indexes: DatabaseIndex[], result: (success: boolean, message: string) => void) => void}) { // User interface for creating new object stores
 
@@ -15,7 +15,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     const indexRows = indexes.map(index => {return <DatabaseIndexDisplay key={index.id} text={<DatabaseInput underline={index.isKey} id={"name" + index.id} placeholder={"Enter index..."}/>}/>})
 
     const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.id}><label htmlFor={"isKey" + index.id}>Key:</label><input type="checkbox" defaultChecked={index.isKey} className="m-2" id={"isKey" + index.id} onClick={(event) => changeKey(index, event)}/></td>)
-    const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.id}><DeleteButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
+    const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.id}><WarningButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
 
     function getDefaultIndexes() {
         setIdPointer(idPointer + 2);
@@ -112,8 +112,8 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     return (
         <div>
             <p className="text-xl font-bold underline">New Object Store Setup</p>
-            <p className="pt-5">Use the interface below to create a new object store to hold records. Object stores need at least one key and at least 2 indexes</p>
-            {<PrimaryButton text="Create Index" clicked={newIndex}/>}
+            <p className="pt-5 pb-10">Use the interface below to create a new object store to hold records. Object stores need at least one key and at least 2 indexes</p>
+            {<SubmitButton text="Create Index" clicked={newIndex}/>}
             <div className="p-10">
                 <table className="table-fixed border-4">
                     <thead>
@@ -134,7 +134,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
             <div>
                 <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
                 <input className="text-center m-4 border-4 w-1/4" placeholder="Enter name..." id="objectStoreName" type="text" />
-                <PrimaryButton text="Create Object Store" clicked={() => {exportIndexes()}}/>
+                <SubmitButton text="Create Object Store" clicked={() => {exportIndexes()}}/>
             </div>
         </div>
     )

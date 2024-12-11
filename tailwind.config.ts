@@ -1,4 +1,4 @@
-// website-shared v1.1
+// website-template v1.2
 
 import type { Config } from "tailwindcss";
 
