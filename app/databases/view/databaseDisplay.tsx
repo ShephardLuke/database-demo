@@ -9,8 +9,8 @@ import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 import { DatabaseIndex } from "./databaseIndex";
 import { ObjectStore } from "./objectStore";
 import Link from "next/link";
-import Button from "../template/buttons/button";
-import SubmitButton from "../template/buttons/submitButton";
+import Button from "@/app/template/buttons/button";
+import SubmitButton from "@/app/template/buttons/submitButton";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -27,7 +27,7 @@ export default function DatabaseDisplay() {
            (
                 <div className="p-5">  
                     <p className="text-center text-4xl font-bold underline whitespace-pre p-5">Database Not Found.</p>
-                    <p><Link className="text-3xl" href="./">Click here to return to database menu.</Link></p>
+                    <p><Link className="text-3xl" href="./databases/">Click here to return to database menu.</Link></p>
                 </div>
            );
 

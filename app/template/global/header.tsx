@@ -9,7 +9,9 @@ export default function Header({currentPage}: {currentPage?: string}) {
     const MAIN_TITLE = "Database Demo";
     
     const PAGES = [
-        new NavLink("All Databases", "/"),
+        new NavLink("Home", "/"),
+        new NavLink("Databases"),
+        new NavLink("Objects"),
         new NameLink("View on Github", "https://github.com/shephardluke/database-demo"),
         new NameLink("Main Website", "https://shephardluke.co.uk")
     ]
@@ -23,9 +25,11 @@ export default function Header({currentPage}: {currentPage?: string}) {
     })
 
     return (
-        <div className="flex justify-between p-10 header">
-            <Link className="basis-1/2 text-4xl" href={"/"}>{MAIN_TITLE}</Link>
-            <div key={"links"} className="basis-1/2 flex justify-around header text-2xl">
+        <div className="flex justify p-10 header">
+            <div className="header whitespace-nowrap"> {/* ADDED DIV */}
+                <Link className="text-4xl" href={"/"}>{MAIN_TITLE}</Link>
+            </div>
+            <div key={"links"} className="flex justify-around header text-2xl items-center w-full"> {/* ADDED ITEMS-CENTER */}
                 {pageLinks}
             </div>
         </div>
