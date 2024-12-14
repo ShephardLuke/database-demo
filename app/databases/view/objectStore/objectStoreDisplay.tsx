@@ -1,10 +1,10 @@
 // Displays one object store based on the given request
 
 import { useEffect, useState } from "react";
-import Record from "./record/record";
+import Record from "./record";
 import DatabaseInput from "../input/databaseInput";
 import SuccessMessage from "@/app/message/successMessage";
-import { ObjectStore } from "../objectStore";
+import { ObjectStore } from "./objectStore";
 import { saveAs } from "file-saver";
 import SubmitButton from "@/app/template/buttons/submitButton";
 import WarningButton from "@/app/template/buttons/warningButton";
@@ -15,10 +15,13 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     const keys = objectStore.getKeys();
     const indexes = objectStore.getIndexes();
     const [records, setRecords] = useState<{[key: string]: string}[]>([]);
+    const [showTypes, setShowTypes] = useState(false);
+
+    const metadata = objectStore.getMetadata();
 
     const indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
-    const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid" + (keys.includes(index) ? " underline" : "")}>{index}</th>)
+    const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid"}><span className={keys.includes(index) ? " underline" : ""}>{index}</span>{showTypes ? " (" + metadata.attributes[index] + ")" : null}</th>)
     headings.push(<th key={"-1"} className="border-solid">Option</th>)
 
     const inputs = []; // Add inputs for adding a new record
@@ -148,7 +151,10 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
                 <WarningButton text="Delete Object Store" clicked={() => deleteObjectStore(objectStore.getName())}/>
                 <SubmitButton text="Export to CSV" clicked={createCSV}/>
             </div>
-
+            <div className="pt-5">
+                <label htmlFor="showTypes">Show Types: </label>
+                <input type="checkbox" id="showTypes" onChange={() => {setShowTypes(!showTypes)}}/>
+            </div>
             <>
                 <div className="p-5 overflow-x-auto">
                     <table className="table-fixed border-4">

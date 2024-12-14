@@ -5,12 +5,12 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ObjectStoreDisplay from "./objectStore/objectStoreDisplay";
-import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 import { DatabaseIndex } from "./databaseIndex";
-import { ObjectStore } from "./objectStore";
+import { ObjectStore } from "./objectStore/objectStore";
 import Link from "next/link";
 import Button from "@/app/template/buttons/button";
 import SubmitButton from "@/app/template/buttons/submitButton";
+import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
