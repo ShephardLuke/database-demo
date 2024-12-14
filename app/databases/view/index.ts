@@ -1,4 +1,4 @@
-import { DATA_TYPE } from "./dataValue";
+import { DATA_TYPE } from "./objectStore/dataValue";
 
 export class Index {
     private name: string
@@ -15,5 +15,13 @@ export class Index {
 
     getType() {
         return this.type;
+    }
+
+    setName(name: string) {
+        this.name = name;
+    }
+
+    setType(type: DATA_TYPE) {
+        this.type = type;
     }
 }

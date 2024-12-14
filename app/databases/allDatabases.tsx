@@ -19,6 +19,7 @@ export default function AllDatabases() { // Displaying every database allowing t
                     <th>Database Name</th>
                     <th>Database Version</th>
                     <th>Object Stores</th>
+                    <th>Opened Last</th>
                     <th>Open Database</th>
                     <th>Delete Database</th>
                 </tr>

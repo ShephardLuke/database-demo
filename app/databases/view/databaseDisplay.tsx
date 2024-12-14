@@ -6,11 +6,15 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ObjectStoreDisplay from "./objectStore/objectStoreDisplay";
 import { DatabaseIndex } from "./databaseIndex";
-import { ObjectStore } from "./objectStore/objectStore";
+import { DatabaseMetadata, ObjectStore, ObjectStoreMetadata } from "./objectStore/objectStore";
 import Link from "next/link";
 import Button from "@/app/template/buttons/button";
 import SubmitButton from "@/app/template/buttons/submitButton";
 import ObjectStoreCreation from "./objectStore/objectStoreCreation";
+import { DATA_TYPE } from "./objectStore/dataValue";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pk = require("../../../package.json");
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();
@@ -77,12 +81,27 @@ export default function DatabaseDisplay() {
 
         function updateObjectStores(db: IDBDatabase) { // Create an array to display each object store
             if (db.objectStoreNames.length == 0) {
+                const metadata: DatabaseMetadata = {
+                    "_version": pk.version,
+                    "objectStores": {}
+                }
+                localStorage.setItem("database" + databaseName, JSON.stringify(metadata))
+
                 setObjectStores([])
                 db.close()
                 return;
             }
             const allObjectStores: ObjectStore[] = [];
-            const transaction = db.transaction([... db.objectStoreNames]);
+
+            if (localStorage.getItem("database" + databaseName) == undefined) {
+                const metadata: DatabaseMetadata = {
+                    "_version": pk.version,
+                    "objectStores": {}
+                }
+                localStorage.setItem("database" + databaseName, JSON.stringify(metadata))
+            }
+
+            const transaction = db.transaction([... db.objectStoreNames], "readwrite");
     
             for (const name of [... db.objectStoreNames]) {
                 const objectStore = transaction.objectStore(name);
@@ -92,6 +111,11 @@ export default function DatabaseDisplay() {
 
             transaction.oncomplete = () => {
                 setObjectStores(allObjectStores)
+                const metadata = (JSON.parse(localStorage.getItem("database" + db.name) as string) as DatabaseMetadata);
+                if (metadata._version != pk.version) {
+                    metadata._version = pk.version;
+                    localStorage.setItem("database" + db.name, JSON.stringify(metadata));
+                }
                 db.close()
             }     
             transaction.onerror = () => {
@@ -157,27 +181,34 @@ export default function DatabaseDisplay() {
 
             const keys = [];
             const nonKeys = [];
+            const attributes: {[key: string]: DATA_TYPE} = {};
 
             for (const index of indexes) {
-                const match = index.name.match("[A-Za-z][A-Za-z0-9]*");
-                if(!match || match[0] != index.name) {
-                    result(false, "Name for index " + index.name + " is invalid. Indexes must start with a letter and can only contain letters and numbers.");
+                const match = index.getName().match("[A-Za-z][A-Za-z0-9]*");
+                attributes[index.getName()] = index.getType();
+                if(!match || match[0] != index.getName()) {
+                    result(false, "Name for index " + index.getName() + " is invalid. Indexes must start with a letter and can only contain letters and numbers.");
                     return;
                 }
-                if (index.isKey) {
-                    keys.push(index.name);
+                if (index.getIsKey()) {
+                    keys.push(index.getName());
                 } else {
                     nonKeys.push(index);
                 }
             }
 
-
-
             const objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys})
 
             for (const index of nonKeys) {
-                objectStore.createIndex(index.name, index.name, {unique: false})
+                objectStore.createIndex(index.getName(), index.getName(), {unique: false})
             }
+
+            const objectStoreMetadata: ObjectStoreMetadata = attributes
+            
+            const metadata = (JSON.parse(localStorage.getItem("database" + databaseName) as string) as DatabaseMetadata);
+            metadata.objectStores[name] = objectStoreMetadata;
+
+            localStorage.setItem("database" + databaseName, JSON.stringify(metadata));
 
             result(true, "Object store " + name + " created.")
 

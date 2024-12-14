@@ -2,10 +2,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Button from "../template/buttons/button";
 import WarningButton from "../template/buttons/warningButton";
+import { DatabaseMetadata } from "./view/objectStore/objectStore";
 
 export default function DatabaseLink({database, deleteDatabase}: {database: IDBDatabaseInfo, deleteDatabase: (database: IDBDatabaseInfo) => void}) { // Disaplying a summary of the database with the name being a link to the full database view page
     
     const [objectStoreNames, setObjectStoreNames] = useState<string[]>([]);
+
+    const stored = localStorage.getItem("database" + database.name) as string;
 
     function getObjectStoreNamesString() { // Returns the store names as a single string for displaying on the page
         let storeNames = "";
@@ -55,6 +58,9 @@ export default function DatabaseLink({database, deleteDatabase}: {database: IDBD
             </td>
             <td className="border-2">
                 {objectStoreNames.length}: {getObjectStoreNamesString()}
+            </td>
+            <td>
+                {stored ? <p>{"v" + (JSON.parse(stored) as DatabaseMetadata)._version}</p> : <><p>&lt; v0.7.0</p><br /><p>Will be converted when opened.</p></>}
             </td>
             <td className="border-2">
                 <Link className="hover:text-white" href={{pathname: "/databases/view", query: {database: database.name}}}>

@@ -1,10 +1,11 @@
-import { MouseEvent, useState } from "react";
+import { ChangeEvent, MouseEvent, useState } from "react";
 import DatabaseIndexDisplay from "../table/databaseIndexDisplay";
 import DatabaseInput from "../input/databaseInput";
 import SuccessMessage from "@/app/message/successMessage";
 import { DatabaseIndex } from "../databaseIndex";
 import SubmitButton from "@/app/template/buttons/submitButton";
 import WarningButton from "@/app/template/buttons/warningButton";
+import { DATA_TYPE } from "./dataValue";
 
 export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (name: string, indexes: DatabaseIndex[], result: (success: boolean, message: string) => void) => void}) { // User interface for creating new object stores
 
@@ -12,10 +13,13 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     const [indexes, setIndexes] = useState<DatabaseIndex[]>(getDefaultIndexes);
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>();
 
-    const indexRows = indexes.map(index => {return <DatabaseIndexDisplay key={index.id} text={<DatabaseInput underline={index.isKey} id={"name" + index.id} placeholder={"Enter index..."}/>}/>})
+    const indexRows = indexes.map(index => {return <DatabaseIndexDisplay key={index.getId()} text={<DatabaseInput underline={index.getIsKey()} id={"name" + index.getId()} placeholder={"Enter index..."}/>}/>})
+    
+    const acceptedTypes = Object.values(DATA_TYPE).map(type => <option key={type} value={type}>{type}</option>)
 
-    const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.id}><label htmlFor={"isKey" + index.id}>Key:</label><input type="checkbox" defaultChecked={index.isKey} className="m-2" id={"isKey" + index.id} onClick={(event) => changeKey(index, event)}/></td>)
-    const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.id}><WarningButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
+    const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.getId()}><label htmlFor={"isKey" + index.getId()}>Key:</label><input type="checkbox" defaultChecked={index.getIsKey()} className="m-2" id={"isKey" + index.getId()} onClick={(event) => changeKey(index, event)}/></td>)
+    const dataTypeDropdowns = indexes.map(index => <td className="border-2" key={index.getId()}><label htmlFor={index.getId() + "type"}>Type:</label><select id={index.getId() + "type"} className="text-center bg-dark-blue border-2 m-4" onChange={(event) => changeType(index, event)}>{acceptedTypes}</select></td>)
+    const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.getId()}><WarningButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
 
     function getDefaultIndexes() {
         setIdPointer(idPointer + 2);
@@ -29,7 +33,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
             return;
         }
 
-        newInputs.push(new DatabaseIndex(idPointer))
+        newInputs.push(new DatabaseIndex(idPointer, undefined))
         setIdPointer(idPointer + 1);
         setIndexes(newInputs)
 
@@ -56,10 +60,16 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     function changeKey(index: DatabaseIndex, event: MouseEvent) { // When a user toggles the key checkbox on an index, this updates the DatabaseIndex object
         const i = indexes.indexOf(index)
         const newIndexes = [... indexes];
-        newIndexes[i] = new DatabaseIndex(index.id, index.name, (event.target as HTMLInputElement).checked)
+        newIndexes[i] = new DatabaseIndex(index.getId(), index.getName(), (event.target as HTMLInputElement).checked, index.getType())
         setIndexes(newIndexes);
-        
-    }  
+    }
+    
+    function changeType(index: DatabaseIndex, event: ChangeEvent) {
+        const i = indexes.indexOf(index)
+        const newIndexes = [... indexes];
+        newIndexes[i] = new DatabaseIndex(index.getId(), index.getName(), index.getIsKey(), DATA_TYPE[(event.target as HTMLInputElement).value as keyof typeof DATA_TYPE])
+        setIndexes(newIndexes);
+    }
 
     function exportIndexes() { // Adds index names and calls parent method to create the new object store
 
@@ -74,20 +84,20 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
         const pastNames: string[] = [];
 
         for (const index of indexes) {
-            const element = document.getElementById("name" + index.id) as HTMLInputElement;
+            const element = document.getElementById("name" + index.getId()) as HTMLInputElement;
             if (element.value.trim() == "") {
                 setCreationMessage({success: false, text: "Please enter a name for all of the indexes."})
                 return;
             }
 
-            index.name = element.value.trim();
-            if(pastNames.includes(index.name)) {
+            index.setName(element.value.trim());
+            if(pastNames.includes(index.getName())) {
                 setCreationMessage({success: false, text: "Please enter a different name for all of the indexes."})
                 return;
             }
 
-            pastNames.push(index.name);
-            if (index.isKey) {
+            pastNames.push(index.getName());
+            if (index.getIsKey()) {
                 keys += 1;
             }
         }
@@ -124,6 +134,9 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
                     <tbody>
                         <tr>
                             {keyCheckboxes}
+                        </tr>
+                        <tr>
+                            {dataTypeDropdowns}
                         </tr>
                         <tr>
                             {deleteButtons}

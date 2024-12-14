@@ -1,38 +1,52 @@
 export enum DATA_TYPE {
-    ANY = "ANY",
     STRING = "STRING",
     INT = "INT",
-    NULL = "NULL",
 }
 
 
 export class DataValue {
 
-    private value: unknown;
-    private type: DATA_TYPE;
+    private value: string | null;
 
-    constructor(value: unknown) {
-        this.value = value;
-        this.type = DATA_TYPE.ANY;
-
-        if (value === null) {
-            this.type = DATA_TYPE.NULL;
-        } else if (String(value) === value) {
-            this.type = DATA_TYPE.STRING;
-        } else if (Number(value) === value) {
-            this.type = DATA_TYPE.INT;
+    constructor(value: string | null) {
+        this.value = value? value.trim() : null;
+        if (this.value == "") {
+            this.value = null;
         }
-
     }
 
-    isType(type: DATA_TYPE) {
-        if (type == DATA_TYPE.ANY || this.value === null) {
-            return true;
+    isType(type: DATA_TYPE) { // Changes type if requirements met
+        return type == DATA_TYPE.STRING || type == this.getType();
+    }
+
+    isNull() {
+        return this.value === null;
+    }
+
+    getType() {
+        if (!isNaN(Number(this.value)) && this.value?.trim() != "") {
+            return DATA_TYPE.INT;
+        } else {
+            return DATA_TYPE.STRING;
         }
-        return this.type == type;
     }
 
     getValue() {
+        return this.value ? this.value : "";
+    }
+
+    getValuePretty(toString: boolean = false) {
+        const type = this.getType();
+        if (this.value === null) {
+            return "NULL";
+        }
+        if (type == DATA_TYPE.STRING || toString) {
+            if (this.value[0] != "'" || this.value[this.value.length - 1] != "'") {
+                return "'" + this.value + "'";
+            }
+        }
+
         return this.value;
+
     }
 }

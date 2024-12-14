@@ -22,7 +22,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-input {
+input, select { /* ADDED SELECT */
   color: #f5f5f5;
   background: theme('colors.light-blue');
   font-family: Arial, Helvetica, sans-serif;

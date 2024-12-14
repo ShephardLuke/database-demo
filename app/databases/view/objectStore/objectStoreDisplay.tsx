@@ -8,6 +8,8 @@ import { ObjectStore } from "./objectStore";
 import { saveAs } from "file-saver";
 import SubmitButton from "@/app/template/buttons/submitButton";
 import WarningButton from "@/app/template/buttons/warningButton";
+import { DataValue } from "./dataValue";
+import { Index } from "..";
 
 export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {objectStore: ObjectStore, deleteObjectStore: (name: string) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
@@ -15,13 +17,14 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     const keys = objectStore.getKeys();
     const indexes = objectStore.getIndexes();
     const [records, setRecords] = useState<{[key: string]: string}[]>([]);
+
     const [showTypes, setShowTypes] = useState(false);
 
     const metadata = objectStore.getMetadata();
 
     const indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
 
-    const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid"}><span className={keys.includes(index) ? " underline" : ""}>{index}</span>{showTypes ? " (" + metadata.attributes[index] + ")" : null}</th>)
+    const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid"}><span className={keys.includes(index) ? " underline" : ""}>{index}</span>{showTypes ? " (" + metadata[index] + ")" : null}</th>)
     headings.push(<th key={"-1"} className="border-solid">Option</th>)
 
     const inputs = []; // Add inputs for adding a new record
@@ -34,7 +37,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     }, [objectStore])
 
 
-    const recordRows = records.map(record => <Record key={Object.values(record).toString()} deleteRecord={deleteRecord} indexOrder={indexOrder} data={record}/>) // bug if record has 2 indexes same data (will cause same keys)#=
+    const recordRows = records.map(record => <Record key={Object.values(record).toString()} deleteRecord={deleteRecord} indexOrderTypes={indexOrder.map(index => new Index(index, metadata[index]))} data={record} showTypes={showTypes}/>) // bug if record has 2 indexes same data (will cause same keys)#=
 
     recordRows.push(
         <tr className="border-2" key={recordRows.length}>
@@ -64,18 +67,23 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
             const dbObjectStore = transaction.objectStore(name);
     
             const newData: {[key: string]: string} = {}
+            const types = indexOrder.map(index => metadata[index]);
 
             for (let i = 0; i < indexOrder.length; i++) {
                 const element = document.getElementById("input" + name + indexOrder[i]) as HTMLInputElement;
-                if (element.value.trim() == "") {
-                    if (keys.includes(indexOrder[i])) {
-                        setCreationMessage({success: false, text: "Keys cannot be empty."})
-                        return;
-                    }
-                    newData[indexOrder[i]] = "NULL";
-                } else {
-                    newData[indexOrder[i]] = element.value
+                const value: string | null = element.value;
+                const dataValue = new DataValue(value);
+                if (dataValue.isNull() && keys.includes(indexOrder[i])) {
+                    setCreationMessage({success: false, text: "Key " + indexOrder[i] + " must contain at least 1 non-space character."});
+                    return;
                 }
+
+                if (!dataValue.isNull() && !dataValue.isType(types[i])) {
+                    setCreationMessage({success: false, text: "Index " + indexOrder[i] + " must be a value of type " + types[i] + "."});
+                    return;
+                }
+                
+                newData[indexOrder[i]] = dataValue.getValue();
  
             }
     

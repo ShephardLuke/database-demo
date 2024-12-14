@@ -1,13 +1,15 @@
-import { DATA_TYPE } from "./dataValue";
+import { DATA_TYPE, DataValue } from "./dataValue";
 
-export type Metadata = {
+export type DatabaseMetadata = {
     _version: string,
-    name: string,
-    attributes: {[key: string]: DATA_TYPE}
+    objectStores: {
+        [key: string]: ObjectStoreMetadata
+    }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pk = require("../../../../package.json");
+export type ObjectStoreMetadata = {
+    [key: string]: DATA_TYPE
+}
 
 export class ObjectStore { // Class to hold all of the info when requesting an object store
     private name: string
@@ -15,7 +17,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
     private keys: string[];
     private indexes: string[];
     private records: {[key: string]: string}[];
-    private metadata: Metadata
+    private metadata: ObjectStoreMetadata
 
     constructor(name: string, idbRequest: IDBRequest) {
         this.name = name;
@@ -23,7 +25,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
         this.keys = [];
         this.indexes = [];
         this.records = [];
-        this.metadata = {_version: "-1", name: "", attributes: {}};
+        this.metadata = {}
 
         idbRequest.onsuccess = () => {
             this.source = idbRequest.source as IDBObjectStore;
@@ -31,24 +33,55 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
             this.indexes = [... this.source.indexNames];
             this.records = idbRequest.result;
 
-            const stored = localStorage.getItem(this.source.transaction.db.name + this.name);
+            const metadata: DatabaseMetadata = JSON.parse(localStorage.getItem("database" + this.source.transaction.db.name) as string) as DatabaseMetadata
+            const stored = metadata.objectStores[this.name];
+            
             if (stored) {
-                this.metadata = JSON.parse(stored);
-            } else {
-                console.warn("Metadata for object store " + this.name + " (" + this.source.transaction.db.name + ") not found. Creating new metadata...");
+                this.metadata = stored
+            } else { // Means it was made pre v0.7.0
                 const attributes: {[key: string]: DATA_TYPE} = {};
-                for (const index of this.keys.concat(this.indexes)) {
-                    attributes[index] = DATA_TYPE.ANY;
+
+                for (const index of this.keys.concat(this.indexes)) { // tries to detect type by check if all records have the same type if not then string
+                    if (this.records.length == 0) {
+                        attributes[index] = DATA_TYPE.STRING;
+                    } else {
+                        let type = new DataValue(this.records[0][index]).getType();
+                        for (let i = 1; i < this.records.length; i++ ) {
+                            const currentValue = new DataValue(this.records[i][index])
+                            const recordType = currentValue.getType()
+                            if (currentValue.getValue() != "NULL" && currentValue.getValue() != "" && type != recordType) {
+                                type = DATA_TYPE.STRING;
+                                break;
+                            }
+    
+                        }
+                        attributes[index] = type;
+                    }
                 }
-                const info = {
-                    "_version": pk.version,
-                    "name": this.name,
-                    "attributes": attributes
+                const info: ObjectStoreMetadata = attributes; 
+
+                // Convert old databases to 0.7.0 format
+                for (const record of this.records) {
+                    const recordKeys = Object.keys(record);
+                    const recordValues = Object.values(record);
+                    for (let i = 0; i < recordValues.length; i++) {
+                        if (recordValues[i] == "NULL") {
+                            const path = this.keys.map(key => record[key]);
+                            this.source.delete(path.length > 1 ? path : path[0]);
+                            record[recordKeys[i]] = "";
+                            this.source.add(record)
+                        }
+                    }
                 }
 
                 this.metadata = info;
 
-                localStorage.setItem(this.source.transaction.db.name + this.name, JSON.stringify(info));
+                metadata.objectStores[this.name] = info;
+
+                localStorage.setItem("database" + this.source.transaction.db.name, JSON.stringify(metadata));
+
+                console.warn("Object store " + this.name + " was made in a version before v0.7.0 and has been converted.");
+
             }
 
 
