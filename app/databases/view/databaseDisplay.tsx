@@ -197,7 +197,7 @@ export default function DatabaseDisplay() {
                 }
             }
 
-            const objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys})
+            const objectStore = newdb.createObjectStore(name, { keyPath: keys.length == 1 ? keys[0] : keys, autoIncrement: true})
 
             for (const index of nonKeys) {
                 objectStore.createIndex(index.getName(), index.getName(), {unique: false})

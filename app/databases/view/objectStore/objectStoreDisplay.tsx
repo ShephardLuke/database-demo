@@ -16,7 +16,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>()
     const keys = objectStore.getKeys();
     const indexes = objectStore.getIndexes();
-    const [records, setRecords] = useState<{[key: string]: string}[]>([]);
+    const [records, setRecords] = useState<{[key: string]: unknown}[]>([]);
 
     const [showTypes, setShowTypes] = useState(false);
 
@@ -66,20 +66,23 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
             const transaction = db.transaction([name], "readwrite")
             const dbObjectStore = transaction.objectStore(name);
     
-            const newData: {[key: string]: string} = {}
+            const newData: {[key: string]: unknown} = {}
             const types = indexOrder.map(index => metadata[index]);
 
             for (let i = 0; i < indexOrder.length; i++) {
+
                 const element = document.getElementById("input" + name + indexOrder[i]) as HTMLInputElement;
                 const value: string | null = element.value;
-                const dataValue = new DataValue(value);
-                if (dataValue.isNull() && keys.includes(indexOrder[i])) {
-                    setCreationMessage({success: false, text: "Key " + indexOrder[i] + " must contain at least 1 non-space character."});
+                const dataValue = DataValue.createFromString(value, types[i]);
+                if (dataValue == false) {
+                    setCreationMessage({success: false, text: "Index " + indexOrder[i] + " must be a value of type " + types[i] + ", got " + DataValue.decideType(value) + "."});
                     return;
                 }
-
-                if (!dataValue.isNull() && !dataValue.isType(types[i])) {
-                    setCreationMessage({success: false, text: "Index " + indexOrder[i] + " must be a value of type " + types[i] + "."});
+                if (dataValue.isNull() && dbObjectStore.autoIncrement && keys.includes(indexOrder[i])) {
+                    continue;
+                }
+                if (dataValue.isNull() && keys.includes(indexOrder[i])) {
+                    setCreationMessage({success: false, text: "Key " + indexOrder[i] + " must contain at least 1 non-space character."});
                     return;
                 }
                 
@@ -88,7 +91,10 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
             }
     
             const newRequest = dbObjectStore.add(newData)
-            newRequest.onsuccess = () => {
+            newRequest.onsuccess = (event) => {
+                if (dbObjectStore.autoIncrement) {
+                    newData[keys[0]] = (event.target as IDBRequest).result;
+                }
                 const newRecords = [... records, newData]
                 setRecords(newRecords);
                 objectStore.setRecords(newRecords);
@@ -110,7 +116,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
 
     }
 
-    function deleteRecord(record: {[key: string]: string}) { // Removes record from database and internal array
+    function deleteRecord(record: {[key: string]: unknown}) { // Removes record from database and internal array
         const request = openDatabase();
 
         request.onsuccess = () => {
@@ -123,10 +129,10 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
             let toDelete: IDBValidKey = [];
 
             if (keys.length == 1) {
-                toDelete = record[keys[0]];
+                toDelete = record[keys[0]] as IDBValidKey;
             } else {
                 for (const key of keys) {
-                    toDelete.push(record[key])
+                    toDelete.push(record[key] as IDBValidKey)
                 }
             }
 

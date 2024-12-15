@@ -17,7 +17,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
     
     const acceptedTypes = Object.values(DATA_TYPE).map(type => <option key={type} value={type}>{type}</option>)
 
-    const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.getId()}><label htmlFor={"isKey" + index.getId()}>Key:</label><input type="checkbox" defaultChecked={index.getIsKey()} className="m-2" id={"isKey" + index.getId()} onClick={(event) => changeKey(index, event)}/></td>)
+    const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.getId()}><label htmlFor={"isKey" + index.getId()}>Primary Key?</label><input type="checkbox" defaultChecked={index.getIsKey()} className="m-2" id={"isKey" + index.getId()} onClick={(event) => changeKey(index, event)}/></td>)
     const dataTypeDropdowns = indexes.map(index => <td className="border-2" key={index.getId()}><label htmlFor={index.getId() + "type"}>Type:</label><select id={index.getId() + "type"} className="text-center bg-dark-blue border-2 m-4" onChange={(event) => changeType(index, event)}>{acceptedTypes}</select></td>)
     const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.getId()}><WarningButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
 

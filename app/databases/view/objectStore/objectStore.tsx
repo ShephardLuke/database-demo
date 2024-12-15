@@ -16,7 +16,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
     private source: IDBObjectStore;
     private keys: string[];
     private indexes: string[];
-    private records: {[key: string]: string}[];
+    private records: {[key: string]: unknown}[];
     private metadata: ObjectStoreMetadata
 
     constructor(name: string, idbRequest: IDBRequest) {
@@ -45,17 +45,19 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
                     if (this.records.length == 0) {
                         attributes[index] = DATA_TYPE.STRING;
                     } else {
-                        let type = new DataValue(this.records[0][index]).getType();
+                        let type = DataValue.decideType(this.records[0][index] as string);
                         for (let i = 1; i < this.records.length; i++ ) {
-                            const currentValue = new DataValue(this.records[i][index])
-                            const recordType = currentValue.getType()
-                            if (currentValue.getValue() != "NULL" && currentValue.getValue() != "" && type != recordType) {
+                            const currentType = DataValue.decideType(this.records[i][index] as string);
+                            if (type === null) {
+                                type = currentType;   
+                            }
+                            if (this.records[i][index] != "NULL" && this.records[i][index] != "" && type != currentType) {
                                 type = DATA_TYPE.STRING;
                                 break;
                             }
     
                         }
-                        attributes[index] = type;
+                        attributes[index] = type? type : DATA_TYPE.STRING;
                     }
                 }
                 const info: ObjectStoreMetadata = attributes; 
@@ -67,7 +69,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
                     for (let i = 0; i < recordValues.length; i++) {
                         if (recordValues[i] == "NULL") {
                             const path = this.keys.map(key => record[key]);
-                            this.source.delete(path.length > 1 ? path : path[0]);
+                            this.source.delete((path.length > 1 ? path : path[0]) as IDBValidKey);
                             record[recordKeys[i]] = "";
                             this.source.add(record)
                         }
@@ -89,7 +91,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
 
     }
 
-    setRecords(records: {[key: string]: string}[]) {
+    setRecords(records: {[key: string]: unknown}[]) {
         this.records = records;
     }
 
