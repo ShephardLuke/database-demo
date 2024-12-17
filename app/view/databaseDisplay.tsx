@@ -288,6 +288,12 @@ export default function DatabaseDisplay() {
         const newObjectStores = [...objectStores]
         newObjectStores.splice(newObjectStores.indexOf(store), 1);
 
+        if (storageAvailable("localStorage")) {
+            const databaseMetadata = JSON.parse(localStorage.getItem("database" + databaseName) as string) as DatabaseMetadata;
+            delete databaseMetadata.objectStores[store.getName()];
+            localStorage.setItem("database" + databaseName, JSON.stringify(databaseMetadata));
+        }
+
         setObjectStores(newObjectStores);
         setCurrentObjectStore(null)
     }    
