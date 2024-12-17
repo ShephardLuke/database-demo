@@ -96,16 +96,17 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
                     newData[keys[0]] = (event.target as IDBRequest).result;
                 }
                 const newRecords = [... records, newData]
-                setRecords(newRecords);
                 objectStore.setRecords(newRecords);
+                setRecords(newRecords);
             }
             
             transaction.onerror = (event) => {
                 if ((event.target as IDBRequest).error?.name == "ConstraintError") {
                     setCreationMessage({success: false, text: ("A record already exists with the same " + (keys.length > 1? "keys." : "key."))})
                 } else {
-                    setCreationMessage({success: false, text: "Record creation failed."})
+                    setCreationMessage({success: false, text: "Record creation failed due to " + (event.target as IDBRequest).error?.name})
                 }
+                db.close();
             }
 
             transaction.oncomplete = () => {

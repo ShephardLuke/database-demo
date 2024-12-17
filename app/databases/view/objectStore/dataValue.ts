@@ -3,6 +3,7 @@ export enum DATA_TYPE {
     INTEGER = "INTEGER",
     FLOAT = "FLOAT",
     BOOLEAN = "BOOLEAN",
+    DATETIME = "DATETIME",
 }
 
 
@@ -16,7 +17,7 @@ export class DataValue {
         this.type = type;
     }
 
-    public static createFromString(value: string | null, type: DATA_TYPE) { // Takes a string and returns a new datavalue only if it can fit into the data type
+    public static createFromString(value: string | null, type: DATA_TYPE): DataValue | false { // Takes a string and returns a new datavalue only if it can fit into the data type
         if (value === null || value.trim() == "") {
             return new DataValue(null, null);
         }
@@ -39,6 +40,17 @@ export class DataValue {
                     return new DataValue(1, DATA_TYPE.BOOLEAN)
                 } else if (v === "false" || v === "0") {
                     return new DataValue(0, DATA_TYPE.BOOLEAN);
+                }
+                return false;
+            case DATA_TYPE.DATETIME:
+                let datetime: number;
+                if (value === String(Math.floor(Number(value)))) {
+                    datetime = Number(new Date(Number(value)));
+                } else {
+                    datetime = Number(new Date(value));
+                }
+                if (!isNaN(Number(datetime))) {
+                    return new DataValue(datetime, DATA_TYPE.DATETIME);
                 }
                 return false;
         }
@@ -82,6 +94,17 @@ export class DataValue {
         if (value === String(Math.floor(Number(value)))) {
             return DATA_TYPE.INTEGER;
         }
+
+        let datetime: Date;
+        if (value === String(Math.floor(Number(value)))) {
+            datetime = new Date(Number(value));
+        } else {
+            datetime = new Date(value);
+        }
+        if (!isNaN(Number(datetime))) {
+            return DATA_TYPE.DATETIME
+        }
+
         if (!isNaN(Number(value))) {
             return DATA_TYPE.FLOAT;
         }
@@ -120,6 +143,8 @@ export class DataValue {
                     return "false";
                 }
                 return "true";
+            case DATA_TYPE.DATETIME:
+                return new Date(this.value as number).toString();
             default:
                 return String(this.value);
         }
