@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import SuccessMessage from "../message/successMessage";
 import DatabaseLink from "./databaseLink";
-import SubmitButton from "../template/buttons/submitButton";
+import SuccessMessage from "./message/successMessage";
+import SubmitButton from "./template/buttons/submitButton";
 
 export default function AllDatabases() { // Displaying every database allowing the user to view them and choose one or create/delete them
 

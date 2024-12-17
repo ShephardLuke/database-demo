@@ -2,7 +2,7 @@ import storageAvailable from "../storageAvailable";
 import { DATA_TYPE, DataValue } from "./dataValue";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pk = require("../../../../package.json");
+const pk = require("../../../package.json");
 
 export type DatabaseMetadata = {
     _version: string,

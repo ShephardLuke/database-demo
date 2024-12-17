@@ -15,7 +15,7 @@ import { DATA_TYPE } from "./objectStore/dataValue";
 import storageAvailable from "./storageAvailable";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pk = require("../../../package.json");
+const pk = require("../../package.json");
 
 export default function DatabaseDisplay() {
     const searchParams = useSearchParams();

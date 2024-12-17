@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Button from "../template/buttons/button";
-import WarningButton from "../template/buttons/warningButton";
+import Button from "./template/buttons/button";
+import WarningButton from "./template/buttons/warningButton";
 
 export default function DatabaseLink({database, deleteDatabase}: {database: IDBDatabaseInfo, deleteDatabase: (database: IDBDatabaseInfo) => void}) { // Disaplying a summary of the database with the name being a link to the full database view page
     
@@ -57,7 +57,7 @@ export default function DatabaseLink({database, deleteDatabase}: {database: IDBD
                 {objectStoreNames.length}: {getObjectStoreNamesString()}
             </td>
             <td className="border-2">
-                <Link className="hover:text-white" href={{pathname: "/databases/view", query: {database: database.name}}}>
+                <Link className="hover:text-white" href={{pathname: "/view", query: {database: database.name}}}>
                     <Button text="Open Database" clicked={() => {}}/>
                 </Link>
             </td>
