@@ -55,8 +55,8 @@ export default function AllDatabases() { // Displaying every database allowing t
         const name = typedName.trim();
 
         for (const database of databases) {
-            if (database.name == name) {
-                setCreationResult({success: false, text:"Database with name " + name + " already exists."});
+            if ((database.name as string).trim().toLowerCase() == name.trim().toLowerCase()) {
+                setCreationResult({success: false, text:"Database with name " + name.trim().toLowerCase() + " already exists."});
                 return;
             }
         }
@@ -82,7 +82,7 @@ export default function AllDatabases() { // Displaying every database allowing t
                 }
                 localStorage.setItem("database" + name, JSON.stringify(metadata));
             }
-    
+            (document.getElementById("inputDatabaseName") as HTMLInputElement).value = "";
             getDatabases();
             setCreationResult({success: true, text:"Database " + name + " created."});
         }
@@ -118,7 +118,7 @@ export default function AllDatabases() { // Displaying every database allowing t
             <p className="p-10 pb-5 text-4xl text-bold underline">Found databases: {databases?.length}</p>   
             <br/>
             {databases.length > 0 ? dbTable : noDbTable}
-            <div key={new Date().getTime()} className="p-10 text-center">
+            <div className="p-10 text-center">
                 <SuccessMessage success={creationResult?.success} text={creationResult?.text}/>
                 <input className="text-center m-2 border-4 w-1/4" id="inputDatabaseName" placeholder="Enter Name..." />
                 <SubmitButton text="Create Database" clicked={newDatabase}/>
