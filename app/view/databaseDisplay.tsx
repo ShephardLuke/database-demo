@@ -240,17 +240,19 @@ export default function DatabaseDisplay() {
                 setObjectStores(newObjectStores);
 
                 transaction.oncomplete = () => {
-                    request.result.close()
+                    setCurrentObjectStore(newObjectStores.length - 1);
+                    request.result.close();
                 }
 
                 transaction.onerror = () => {
                     request.result.close();
                 }
-
-                setDatabaseVersion(request.result.version)
+                
+                setDatabaseVersion(request.result.version);
 
             } else {
                 request.result.close();
+                setDatabaseVersion(request.result.version)
             }
 
         }
@@ -258,7 +260,7 @@ export default function DatabaseDisplay() {
     }
 
     
-    function deleteObjectStore(store: string) { // Deletes object store from database
+    function deleteObjectStore(store: ObjectStore) { // Deletes object store from database
         if (!foundDatabase) {
             console.log("no database")
             return;
@@ -281,9 +283,13 @@ export default function DatabaseDisplay() {
         request.onupgradeneeded = () => {
             const newdb = request.result;
 
-            newdb.deleteObjectStore(store)
+            newdb.deleteObjectStore(store.getName())
         }
 
+        const newObjectStores = [...objectStores]
+        newObjectStores.splice(newObjectStores.indexOf(store), 1);
+
+        setObjectStores(newObjectStores);
         setCurrentObjectStore(null)
     }    
 

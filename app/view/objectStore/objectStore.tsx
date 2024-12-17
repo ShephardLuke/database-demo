@@ -105,7 +105,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
 
                 this.updateRecords();
 
-                console.log("Finished created metadata for " + this.name + ".");
+                console.log("Finished creating metadata for " + this.name + ".");
 
             }
 

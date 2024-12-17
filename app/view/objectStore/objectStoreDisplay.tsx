@@ -11,7 +11,7 @@ import WarningButton from "@/app/template/buttons/warningButton";
 import { DataValue } from "./dataValue";
 import { Index } from "..";
 
-export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {objectStore: ObjectStore, deleteObjectStore: (name: string) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
+export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {objectStore: ObjectStore, deleteObjectStore: (name: ObjectStore) => void}) { // Deleting itself requires parent to give method as parent needs to delete this from array etc
 
     const [creationMessage, setCreationMessage] = useState<{success: boolean, text: string}>()
     const keys = objectStore.getKeys();
@@ -163,7 +163,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
             <p className="text-xl font-bold underline pb-5">{objectStore.getName()}</p>
 
             <div className="flex gap-4 justify-center">
-                <WarningButton text="Delete Object Store" clicked={() => deleteObjectStore(objectStore.getName())}/>
+                <WarningButton text="Delete Object Store" clicked={() => deleteObjectStore(objectStore)}/>
                 <SubmitButton text="Export to CSV" clicked={createCSV}/>
             </div>
             <div className="pt-5">
