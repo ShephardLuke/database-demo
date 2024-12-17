@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import DatabaseLink from "./databaseLink";
 import SuccessMessage from "./message/successMessage";
 import SubmitButton from "./template/buttons/submitButton";
+import storageAvailable from "./view/storageAvailable";
+import { DatabaseMetadata } from "./view/objectStore/objectStore";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pk = require("../package.json");
 
 export default function AllDatabases() { // Displaying every database allowing the user to view them and choose one or create/delete them
 
@@ -69,6 +74,14 @@ export default function AllDatabases() { // Displaying every database allowing t
                 const databases = await indexedDB.databases();
                 setDatabases(databases);
             }
+
+            if (storageAvailable("localStorage")) {
+                const metadata: DatabaseMetadata = {
+                    "_version": pk.version,
+                    "objectStores": {},
+                }
+                localStorage.setItem("database" + name, JSON.stringify(metadata));
+            }
     
             getDatabases();
             setCreationResult({success: true, text:"Database " + name + " created."});
@@ -87,6 +100,9 @@ export default function AllDatabases() { // Displaying every database allowing t
         }
 
         DBDeleteRequest.onsuccess = () => {
+            if (storageAvailable("localStorage")) {
+                localStorage.removeItem("database" + database.name);
+            }
             const newDatabases = [... databases];
             newDatabases.splice(newDatabases.indexOf(database), 1)
             setDatabases(newDatabases)

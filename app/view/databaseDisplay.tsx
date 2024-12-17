@@ -270,7 +270,18 @@ export default function DatabaseDisplay() {
         const request = window.indexedDB.open(databaseName, newVersion);
 
         request.onsuccess = () => {
-            setDatabaseVersion(request.result.version)
+            const newObjectStores = [...objectStores]
+            newObjectStores.splice(newObjectStores.indexOf(store), 1);
+
+            if (storageAvailable("localStorage")) {
+                const databaseMetadata = JSON.parse(localStorage.getItem("database" + databaseName) as string) as DatabaseMetadata;
+                delete databaseMetadata.objectStores[store.getName()];
+                localStorage.setItem("database" + databaseName, JSON.stringify(databaseMetadata));
+            }
+
+            setObjectStores(newObjectStores);
+            setCurrentObjectStore(null);
+            setDatabaseVersion(request.result.version);
             request.result.close();
         }
 
@@ -284,18 +295,6 @@ export default function DatabaseDisplay() {
 
             newdb.deleteObjectStore(store.getName())
         }
-
-        const newObjectStores = [...objectStores]
-        newObjectStores.splice(newObjectStores.indexOf(store), 1);
-
-        if (storageAvailable("localStorage")) {
-            const databaseMetadata = JSON.parse(localStorage.getItem("database" + databaseName) as string) as DatabaseMetadata;
-            delete databaseMetadata.objectStores[store.getName()];
-            localStorage.setItem("database" + databaseName, JSON.stringify(databaseMetadata));
-        }
-
-        setObjectStores(newObjectStores);
-        setCurrentObjectStore(null)
     }    
 
     return (
