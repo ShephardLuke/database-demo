@@ -23,7 +23,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     const metadata = objectStore.getMetadata();
 
     const indexOrder = [... keys, ...indexes]; // Eventually can possibly be rearranged by the user to whatever they pick
-
+    
     const headings = indexOrder.map(index => <th key={indexOrder.indexOf(index)} className={"border-solid"}><span className={keys.includes(index) ? " underline" : ""}>{index}</span>{showTypes ? " (" + metadata[index] + ")" : null}</th>)
     headings.push(<th key={"-1"} className="border-solid">Option</th>)
 

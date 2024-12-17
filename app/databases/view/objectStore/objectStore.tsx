@@ -1,3 +1,4 @@
+import storageAvailable from "../storageAvailable";
 import { DATA_TYPE, DataValue } from "./dataValue";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -22,7 +23,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
     private records: {[key: string]: unknown}[];
     private metadata: ObjectStoreMetadata
 
-    constructor(name: string, idbRequest: IDBRequest) {
+    constructor(name: string, idbRequest: IDBRequest, customMetadata?: ObjectStoreMetadata) {
         this.name = name;
         this.source = idbRequest.source as IDBObjectStore;
         this.keys = [];
@@ -35,12 +36,32 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
             this.keys = typeof this.source.keyPath == "string" ? [this.source.keyPath] : this.source.keyPath;
             this.indexes = [... this.source.indexNames];
             this.records = idbRequest.result;
-
-            const databaseMetadata: DatabaseMetadata = JSON.parse(localStorage.getItem("database" + this.source.transaction.db.name) as string) as DatabaseMetadata
-            const stored = databaseMetadata.objectStores[this.name];
             
-            if (stored) { // Metadata exists, update if needed
-                this.metadata = stored
+            let databaseMetadata: DatabaseMetadata = {
+                "_version": pk.version,
+                "objectStores": {},
+            }
+
+            if (customMetadata !== undefined) {
+                this.metadata = customMetadata;
+                return;
+            }
+
+            const storage = storageAvailable("localStorage");
+            if (storage) {
+                databaseMetadata = JSON.parse(localStorage.getItem("database" + this.source.transaction.db.name) as string) as DatabaseMetadata
+                if (databaseMetadata === null) {
+                    databaseMetadata = {
+                        "_version": pk.version,
+                        "objectStores": {},
+                    };
+                }
+            }
+
+
+            
+            if (storage && databaseMetadata.objectStores[this.name] != null) { // Metadata exists, update if needed
+                this.metadata = databaseMetadata.objectStores[this.name];
                 if (databaseMetadata._version == pk.version) {
                     return;
                 }
@@ -76,9 +97,11 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
                 }
                 this.metadata = types;
 
-                databaseMetadata.objectStores[this.name] = types;
+                if (storage) {
+                    databaseMetadata.objectStores[this.name] = types;
         
-                localStorage.setItem("database" + this.source.transaction.db.name, JSON.stringify(databaseMetadata));
+                    localStorage.setItem("database" + this.source.transaction.db.name, JSON.stringify(databaseMetadata));   
+                }
 
                 this.updateRecords();
 

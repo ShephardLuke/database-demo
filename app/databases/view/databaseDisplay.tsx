@@ -12,6 +12,7 @@ import Button from "@/app/template/buttons/button";
 import SubmitButton from "@/app/template/buttons/submitButton";
 import ObjectStoreCreation from "./objectStore/objectStoreCreation";
 import { DATA_TYPE } from "./objectStore/dataValue";
+import storageAvailable from "./storageAvailable";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pk = require("../../../package.json");
@@ -24,7 +25,15 @@ export default function DatabaseDisplay() {
     const [foundDatabase, setFoundDatabase] = useState<boolean | null>(null);
     const [databaseVersion, setDatabaseVersion] = useState(0);
 
+    const [objectStores, setObjectStores] = useState<ObjectStore[]>([]);
+
+    const [currentObjectStore, setCurrentObjectStore]  = useState<number | null>(null);
+
+    const objectStoreSelects = objectStores.map(store => {return <Button key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
+    objectStoreSelects.unshift(<SubmitButton key={-1} text={"New Object Store"} clicked={() => {setCurrentObjectStore(-1)}}/>)
+    
     let errorMessage = <></>;
+
 
     if (foundDatabase == false) {
         errorMessage =                 
@@ -44,12 +53,6 @@ export default function DatabaseDisplay() {
         )
     }
 
-    const [objectStores, setObjectStores] = useState<ObjectStore[]>([]);
-
-    const [currentObjectStore, setCurrentObjectStore]  = useState<number | null>(null);
-
-    const objectStoreSelects = objectStores.map(store => {return <Button key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
-    objectStoreSelects.unshift(<SubmitButton key={-1} text={"New Object Store"} clicked={() => {setCurrentObjectStore(-1)}}/>)
 
     useEffect(() => { // Find the database if it exists
         async function getObjectStores() {
@@ -80,12 +83,15 @@ export default function DatabaseDisplay() {
     useEffect(() => { // When database is found open it
 
         function updateObjectStores(db: IDBDatabase) { // Create an array to display each object store
+            const localStorageEnabled = storageAvailable("localStorage");
             if (db.objectStoreNames.length == 0) {
-                const metadata: DatabaseMetadata = {
-                    "_version": pk.version,
-                    "objectStores": {}
+                if (localStorageEnabled) {
+                    const metadata: DatabaseMetadata = {
+                        "_version": pk.version,
+                        "objectStores": {}
+                    }
+                    localStorage.setItem("database" + databaseName, JSON.stringify(metadata))
                 }
-                localStorage.setItem("database" + databaseName, JSON.stringify(metadata))
 
                 setObjectStores([])
                 db.close()
@@ -93,7 +99,7 @@ export default function DatabaseDisplay() {
             }
             const allObjectStores: ObjectStore[] = [];
 
-            if (localStorage.getItem("database" + databaseName) == undefined) {
+            if (localStorageEnabled && localStorage.getItem("database" + databaseName) == undefined) {
                 const metadata: DatabaseMetadata = {
                     "_version": pk.version,
                     "objectStores": {}
@@ -111,11 +117,15 @@ export default function DatabaseDisplay() {
 
             transaction.oncomplete = () => {
                 setObjectStores(allObjectStores)
-                const metadata = (JSON.parse(localStorage.getItem("database" + db.name) as string) as DatabaseMetadata);
-                if (metadata._version != pk.version) {
-                    metadata._version = pk.version;
-                    localStorage.setItem("database" + db.name, JSON.stringify(metadata));
+
+                if (localStorageEnabled) {
+                    const metadata = (JSON.parse(localStorage.getItem("database" + db.name) as string) as DatabaseMetadata);
+                    if (metadata._version != pk.version) {
+                        metadata._version = pk.version;
+                        localStorage.setItem("database" + db.name, JSON.stringify(metadata));
+                    }
                 }
+
                 db.close()
             }     
             transaction.onerror = () => {
@@ -136,21 +146,14 @@ export default function DatabaseDisplay() {
             setDatabaseVersion(request.result.version)
             updateObjectStores(request.result)
         }
-    }, [databaseName, databaseVersion, foundDatabase])
+    }, [databaseName, foundDatabase])
 
 
 
-    function openDatabase() { // Open a new version of the database to add/remove object stores
+    function openDatabaseNewVersion() { // Open a new version of the database to add/remove object stores
         const newVersion = databaseVersion + 1;
     
         const request = window.indexedDB.open(databaseName, newVersion);
-
-        request.onsuccess = () => {
-            if (request.result.version != databaseVersion) {
-                setDatabaseVersion(request.result.version)
-            }
-            request.result.close()
-        }
 
         request.onerror = (event) => {
             console.error(event)
@@ -174,7 +177,10 @@ export default function DatabaseDisplay() {
             }
         }
 
-        const request = openDatabase()
+        const request = openDatabaseNewVersion() // 
+        
+        let objectStoreMetadata: ObjectStoreMetadata = {};
+        let success = false;
 
         request.onupgradeneeded = () => {
             const newdb = request.result
@@ -203,14 +209,49 @@ export default function DatabaseDisplay() {
                 objectStore.createIndex(index.getName(), index.getName(), {unique: false})
             }
 
-            const objectStoreMetadata: ObjectStoreMetadata = attributes
+            objectStoreMetadata = attributes
             
-            const metadata = (JSON.parse(localStorage.getItem("database" + databaseName) as string) as DatabaseMetadata);
-            metadata.objectStores[name] = objectStoreMetadata;
+            if (storageAvailable("localStorage")) {
+                const metadata = (JSON.parse(localStorage.getItem("database" + databaseName) as string) as DatabaseMetadata);
+                metadata.objectStores[name] = objectStoreMetadata;
+    
+                localStorage.setItem("database" + databaseName, JSON.stringify(metadata));
+            }
 
-            localStorage.setItem("database" + databaseName, JSON.stringify(metadata));
+            success = true;
 
-            result(true, "Object store " + name + " created.")
+        }
+
+        
+        request.onsuccess = () => {
+            console.log(success)
+            if (success) {
+                result(true, "Object store " + name + " created.")
+                const transaction = request.result.transaction([name])
+                let newStore;
+
+                if (storageAvailable("localStorage")) {
+                    newStore = new ObjectStore(name, transaction.objectStore(name).getAll());
+                } else {
+                    newStore = new ObjectStore(name, transaction.objectStore(name).getAll(), objectStoreMetadata);
+                }
+    
+                const newObjectStores = [... objectStores, newStore];
+                setObjectStores(newObjectStores);
+
+                transaction.oncomplete = () => {
+                    request.result.close()
+                }
+
+                transaction.onerror = () => {
+                    request.result.close();
+                }
+
+                setDatabaseVersion(request.result.version)
+
+            } else {
+                request.result.close();
+            }
 
         }
 
@@ -258,6 +299,7 @@ export default function DatabaseDisplay() {
                 <div className="p-5 flex gap-5 justify-center">
                     {objectStoreSelects}
                 </div>
+                {storageAvailable("localStorage") ? null : <p className="text-red-500">LocalStorage unavailable. Types can be used but will not be saved and will become STRING when next opened.</p>}
                 <div className="p-5">
                     {currentObjectStore == null || currentObjectStore == -1 ? null : <ObjectStoreDisplay objectStore={objectStores[currentObjectStore]} deleteObjectStore={deleteObjectStore} />}
                     {currentObjectStore == -1 ? <ObjectStoreCreation newObjectStore={newObjectStore} />: null}

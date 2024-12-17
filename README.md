@@ -16,15 +16,17 @@ To run a local development server, run 'npm run dev'.
 Otherwise to create a static build, run 'npm run build' then use a package such as [http-server](https://www.npmjs.com/package/http-server) to locally run the build in the 'out' directory.
 
 ## How to use
-### Database Menu (Main Page)
-When loading the webpage for the first time there will be no databases.
+### Database Page
+When using the webpage for the first time there will be no databases.
 
 To create a database, at the bottom enter the name and press the 'Create Database' button and it should appear on the list.
 Press 'Open Database' to go into the database, or 'Delete Database' to remove it.
 
 ### Database View
 #### Object Stores
-Once inside a database, all of its object stores and their records will be displayed. When opening a database for the first time, there will be no object stores. To create one use the setup UI to add and name indexes (using the 'Create Index' button to add more) and set them as keys if multiple are needed. After entering a name for the object store press the 'Create Object Store' button and it will be created.
+Once inside a database, all of its object stores and their records will be displayed. When opening a database for the first time, there will be no object stores. To create one use the setup UI to add and name indexes (using the 'Create Index' button to add more) and set their types and as a primary key if needed. After entering a name for the object store press the 'Create Object Store' button and it will be created.
+
+To select an already made object store, press the button with the name of the desired object store and it will be displayed and records can be created/deleted.
 
 To delete an object store, press the 'Delete Object Store' button under its name.
 
