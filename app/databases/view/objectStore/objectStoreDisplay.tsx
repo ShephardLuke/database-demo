@@ -18,7 +18,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     const indexes = objectStore.getIndexes();
     const [records, setRecords] = useState<{[key: string]: unknown}[]>([]);
 
-    const [showTypes, setShowTypes] = useState(false);
+    const [showTypes, setShowTypes] = useState(true);
 
     const metadata = objectStore.getMetadata();
 
@@ -167,7 +167,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
             </div>
             <div className="pt-5">
                 <label htmlFor="showTypes">Show Types: </label>
-                <input type="checkbox" id="showTypes" onChange={() => {setShowTypes(!showTypes)}}/>
+                <input defaultChecked={true} type="checkbox" id="showTypes" onChange={() => {setShowTypes(!showTypes)}}/>
             </div>
             <>
                 <div className="p-5 overflow-x-auto">
