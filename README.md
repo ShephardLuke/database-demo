@@ -38,4 +38,4 @@ Changes are updated as soon as they are made.
 Closing the browser will still keep all of the databases with their object stores and records in persistant storage (IndexedDB). Indexedb is required for the databases, and localStorage is optional but recommended as all of the types are stored there and cannot be saved without it. All types will become string without localStorage.
 
 ## Exporting
-Currently object stores can be exported to CSV files using the "export to CSV" button.
+Object stores can be exported to CSV files using the "export to CSV" button.
