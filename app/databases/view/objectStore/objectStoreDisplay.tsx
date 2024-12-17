@@ -92,7 +92,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     
             const newRequest = dbObjectStore.add(newData)
             newRequest.onsuccess = (event) => {
-                if (dbObjectStore.autoIncrement) {
+                if (dbObjectStore.autoIncrement) { // Needs more work
                     newData[keys[0]] = (event.target as IDBRequest).result;
                 }
                 const newRecords = [... records, newData]

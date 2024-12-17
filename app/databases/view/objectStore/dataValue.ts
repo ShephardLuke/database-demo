@@ -1,7 +1,8 @@
 export enum DATA_TYPE {
     STRING = "STRING",
-    INT = "INT",
+    INTEGER = "INTEGER",
     FLOAT = "FLOAT",
+    BOOLEAN = "BOOLEAN",
 }
 
 
@@ -15,16 +16,16 @@ export class DataValue {
         this.type = type;
     }
 
-    public static createFromString(value: string | null, type: DATA_TYPE) {
+    public static createFromString(value: string | null, type: DATA_TYPE) { // Takes a string and returns a new datavalue only if it can fit into the data type
         if (value === null || value.trim() == "") {
             return new DataValue(null, null);
         }
         switch (type) {
             case DATA_TYPE.STRING:
                 return new DataValue(value, DATA_TYPE.STRING);
-            case DATA_TYPE.INT:
+            case DATA_TYPE.INTEGER:
                 if (value === String(Math.floor(Number(value)))) {
-                    return new DataValue(Number(value), DATA_TYPE.INT);
+                    return new DataValue(Number(value), DATA_TYPE.INTEGER);
                 }
                 return false;
             case DATA_TYPE.FLOAT:
@@ -32,43 +33,65 @@ export class DataValue {
                     return new DataValue(Number(value), DATA_TYPE.FLOAT);
                 }
                 return false;
-        }
-    }
-
-    public static canConvert(from: DATA_TYPE, to: DATA_TYPE) {
-        if (from === to || to === DATA_TYPE.STRING) {
-            return true;
-        }
-
-        switch (from) {
-            case DATA_TYPE.INT:
-                switch (to) {
-                    case DATA_TYPE.FLOAT:
-                        return true;
+            case DATA_TYPE.BOOLEAN:
+                const v = value.trim().toLowerCase();
+                if (v === "true" || v === "1") {
+                    return new DataValue(1, DATA_TYPE.BOOLEAN)
+                } else if (v === "false" || v === "0") {
+                    return new DataValue(0, DATA_TYPE.BOOLEAN);
                 }
+                return false;
         }
     }
+
+    // Old method might be deleted, ran from detect types from objectstore.tsx
+
+    // public static canConvert(from: DATA_TYPE, to: DATA_TYPE) { // true if one type can be safely converted to another without any changes
+    //     if (from === to || to === DATA_TYPE.STRING) {
+    //         return true;
+    //     }
+
+    //     switch (from) {
+    //         case DATA_TYPE.INTEGER:
+    //             switch (to) {
+    //                 case DATA_TYPE.FLOAT:
+    //                     return true;
+    //             }
+    //         case DATA_TYPE.BOOLEAN:
+    //             switch (to) {
+    //                 case DATA_TYPE.INTEGER:
+    //                     return true;
+    //                 case DATA_TYPE.FLOAT:
+    //                     return true;
+    //             }
+    //     }
+
+    //     return false;
+    // }
 
     
-    public static decideType(value: string | null) {
+    public static decideType(value: string | null) { // Returns type for string, might be removed as all booleans can be ints and all ints can be floats. Only current used in ObjectStoreDisplay.tsx for an error message.
         if (value === null || value.trim() === "") {
             return null;
         }
 
-
+        if (value.trim().toLowerCase() === "true" || value.trim().toLowerCase() === "false" || value === "0" || value === "1") {
+            return DATA_TYPE.BOOLEAN;
+        }
+        
         if (value === String(Math.floor(Number(value)))) {
-            return DATA_TYPE.INT;
+            return DATA_TYPE.INTEGER;
         }
         if (!isNaN(Number(value))) {
             return DATA_TYPE.FLOAT;
         }
+
         return DATA_TYPE.STRING;
     }
 
     isNull() {
         return this.value === null;
     }
-
 
     getType() { // Returns what type its value is
         return this.type;
@@ -78,9 +101,9 @@ export class DataValue {
         return this.value;
     }
 
-    getValuePretty(): string | null {
+    getValuePretty(): string | null { // Returns a nicer looking value that shows its type eaiser.
         if (this.value === null) {
-            return "NULL";
+            return "null";
         }
 
         switch (this.type) {
@@ -92,6 +115,11 @@ export class DataValue {
                     s = s + ".0";
                 }
                 return s;
+            case DATA_TYPE.BOOLEAN:
+                if (this.value === 0) {
+                    return "false";
+                }
+                return "true";
             default:
                 return String(this.value);
         }
