@@ -107,7 +107,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
             return;
         }
 
-        newObjectStore(nameInput.value, indexes, dbResult);
+        newObjectStore(nameInput.value.trim(), indexes, dbResult);
     }
 
     function dbResult(success: boolean, message: string) { // Called from databaseDisplay after requesting to create the object store

@@ -11,7 +11,6 @@ export default function Header({currentPage}: {currentPage?: string}) {
     const PAGES = [
         new NavLink("Home", "/"),
         new NavLink("Databases"),
-        new NavLink("Objects"),
         new NameLink("View on Github", "https://github.com/shephardluke/database-demo"),
         new NameLink("Main Website", "https://shephardluke.co.uk")
     ]

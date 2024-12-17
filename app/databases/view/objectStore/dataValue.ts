@@ -10,21 +10,13 @@ export class DataValue {
     private value: unknown;
     private type: DATA_TYPE | null;
 
-    private constructor(value: unknown, type: DATA_TYPE | null) {
-        if (value === undefined) {
-            value = null;
-        }
-        console.log(value, "a"); // 0 TURNS INTO NOTHING?
+    constructor(value: unknown, type: DATA_TYPE | null) {
         this.value = value
         this.type = type;
-        if (this.type == DATA_TYPE.STRING && this.type.trim() == "") {
-            this.value = null;
-            this.type = null;
-        }
     }
 
-    public static createFromString(value: string, type: DATA_TYPE) {
-        if (value.trim() == "") {
+    public static createFromString(value: string | null, type: DATA_TYPE) {
+        if (value === null || value.trim() == "") {
             return new DataValue(null, null);
         }
         switch (type) {
@@ -43,18 +35,32 @@ export class DataValue {
         }
     }
 
+    public static canConvert(from: DATA_TYPE, to: DATA_TYPE) {
+        if (from === to || to === DATA_TYPE.STRING) {
+            return true;
+        }
+
+        switch (from) {
+            case DATA_TYPE.INT:
+                switch (to) {
+                    case DATA_TYPE.FLOAT:
+                        return true;
+                }
+        }
+    }
+
     
-    public static decideType(value: string) {
-        if (value === null) {
+    public static decideType(value: string | null) {
+        if (value === null || value.trim() === "") {
             return null;
         }
 
 
         if (value === String(Math.floor(Number(value)))) {
-            return DATA_TYPE.INT
+            return DATA_TYPE.INT;
         }
         if (!isNaN(Number(value))) {
-            return DATA_TYPE.FLOAT
+            return DATA_TYPE.FLOAT;
         }
         return DATA_TYPE.STRING;
     }
@@ -69,21 +75,25 @@ export class DataValue {
     }
 
     getValue() {
-        return this.value ? this.value : "";
+        return this.value;
     }
 
-    getValuePretty(toString: boolean = false) {
-        // const type = this.getType();
-        // if (this.value === null) {
-        //     return "NULL";
-        // }
-        // if (type == DATA_TYPE.STRING || toString) {
-        //     if (this.value[0] != "'" || this.value[this.value.length - 1] != "'") {
-        //         return "'" + this.value + "'";
-        //     }
-        // }
+    getValuePretty(): string | null {
+        if (this.value === null) {
+            return "NULL";
+        }
 
-        return this.value;
-
+        switch (this.type) {
+            case DATA_TYPE.STRING:
+                return "'" + this.value + "'";
+            case DATA_TYPE.FLOAT:
+                let s = String(this.value);
+                if (!s.includes(".")) {
+                    s = s + ".0";
+                }
+                return s;
+            default:
+                return String(this.value);
+        }
     }
 }

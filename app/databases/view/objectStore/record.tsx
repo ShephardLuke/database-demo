@@ -1,7 +1,7 @@
 'use client'
 
 import WarningButton from "@/app/template/buttons/warningButton";
-import { DATA_TYPE, DataValue } from "./dataValue";
+import { DataValue } from "./dataValue";
 import { Index } from "..";
 import { ReactNode } from "react";
 
@@ -12,12 +12,14 @@ export default function Record({indexOrderTypes, data, deleteRecord, showTypes}:
             {indexOrderTypes.map((index) => 
                 {
                     indexCounter += 1;
-                    return <td key={indexCounter} className="border-2">
-                        {(showTypes ? 
-                        new DataValue(data[index.getName()]).getValuePretty(index.getType() == DATA_TYPE.STRING)
-                        :
-                        new DataValue(data[index.getName()]).getValue()) as ReactNode}
-                        </td>
+                    const value = new DataValue(data[index.getName()], index.getType());
+                    if (value) { 
+                        if (showTypes) {
+                            return <td className="border-2" key={indexCounter}>{value.getValuePretty() as ReactNode}</td>
+                        }
+                        return <td className="border-2" key={indexCounter}>{value.getValue() as ReactNode}</td>
+                    }
+                    return <td className="border-2" key={indexCounter}></td>;
                 }
             )}
             <td className="border-2">

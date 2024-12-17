@@ -39,23 +39,31 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
             if (stored) {
                 this.metadata = stored
             } else { // Means it was made pre v0.7.0
+                console.warn("Object store " + this.name + " has no metadata, checking types and creating metadata...");
+
                 const attributes: {[key: string]: DATA_TYPE} = {};
 
                 for (const index of this.keys.concat(this.indexes)) { // tries to detect type by check if all records have the same type if not then string
                     if (this.records.length == 0) {
                         attributes[index] = DATA_TYPE.STRING;
                     } else {
-                        let type = DataValue.decideType(this.records[0][index] as string);
+                        let type = DataValue.decideType(String(this.records[0][index]));
                         for (let i = 1; i < this.records.length; i++ ) {
-                            const currentType = DataValue.decideType(this.records[i][index] as string);
+                            const currentType = DataValue.decideType(String(this.records[i][index]));
                             if (type === null) {
-                                type = currentType;   
-                            }
-                            if (this.records[i][index] != "NULL" && this.records[i][index] != "" && type != currentType) {
+                                type = currentType;
+                            } else if (currentType !== null && type != currentType) {
+                                if (currentType !== DATA_TYPE.STRING && DataValue.canConvert(type, currentType)) {
+                                    type = currentType;
+                                    break;
+                                }
+
                                 type = DATA_TYPE.STRING;
                                 break;
                             }
-    
+                        }
+                        if (type && attributes[index] !== type) {
+                            console.log(index + " -> " + type);
                         }
                         attributes[index] = type? type : DATA_TYPE.STRING;
                     }
@@ -66,13 +74,25 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
                 for (const record of this.records) {
                     const recordKeys = Object.keys(record);
                     const recordValues = Object.values(record);
+
+                    let changed = false;
                     for (let i = 0; i < recordValues.length; i++) {
-                        if (recordValues[i] == "NULL") {
-                            const path = this.keys.map(key => record[key]);
-                            this.source.delete((path.length > 1 ? path : path[0]) as IDBValidKey);
-                            record[recordKeys[i]] = "";
-                            this.source.add(record)
+                        const rec = String(recordValues[i]);
+                        const value = DataValue.createFromString(recordValues[i] === null ? null : rec, attributes[recordKeys[i]]) as DataValue;
+                        if (value.getValue() !== recordValues[i]) {
+                            changed = true;
                         }
+                    }
+                    if(changed) {
+                        const newRecord: {[key: string]: unknown} = {};
+                        for (let i = 0; i < recordValues.length; i++) {
+                            const value = String(recordValues[i]);
+                            newRecord[recordKeys[i]] = (DataValue.createFromString(recordValues[i] === null ? null : value, attributes[recordKeys[i]]) as DataValue).getValue();
+                        }
+                        const path = this.keys.map(key => record[key]);
+                        console.log("Updated types for record " + Object.values(record) + ".");
+                        this.source.delete((path.length > 1 ? path : path[0]) as IDBValidKey);
+                        this.source.add(newRecord);
                     }
                 }
 
@@ -82,7 +102,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
 
                 localStorage.setItem("database" + this.source.transaction.db.name, JSON.stringify(metadata));
 
-                console.warn("Object store " + this.name + " was made in a version before v0.7.0 and has been converted.");
+                console.log("Finished checks and created metadata.");
 
             }
 

@@ -168,8 +168,8 @@ export default function DatabaseDisplay() {
         }
 
         for (const store of objectStores) {
-            if (store.getName() == name) {
-                result(false, "Object store with the name " + name + " alreay exists.");
+            if (store.getName().toLowerCase() == name.toLowerCase()) {
+                result(false, "Object store with the name " + name.toLowerCase() + " already exists.");
                 return;
             }
         }
