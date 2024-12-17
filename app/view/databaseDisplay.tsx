@@ -224,7 +224,6 @@ export default function DatabaseDisplay() {
 
         
         request.onsuccess = () => {
-            console.log(success)
             if (success) {
                 result(true, "Object store " + name + " created.")
                 const transaction = request.result.transaction([name])
@@ -247,7 +246,7 @@ export default function DatabaseDisplay() {
                 transaction.onerror = () => {
                     request.result.close();
                 }
-                
+
                 setDatabaseVersion(request.result.version);
 
             } else {
