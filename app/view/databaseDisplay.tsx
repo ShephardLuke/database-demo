@@ -40,7 +40,7 @@ export default function DatabaseDisplay() {
            (
                 <div className="p-5">  
                     <p className="text-center text-4xl font-bold underline whitespace-pre p-5">Database Not Found.</p>
-                    <p><Link className="text-3xl" href="./databases/">Click here to return to database menu.</Link></p>
+                    <p><Link className="text-3xl" href="./">Click here to return to database menu.</Link></p>
                 </div>
            );
 
