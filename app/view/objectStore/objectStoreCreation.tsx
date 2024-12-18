@@ -19,7 +19,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
 
     const keyCheckboxes = indexes.map(index => <td className="border-2" key={index.getId()}><label htmlFor={"isKey" + index.getId()}>Primary Key?</label><input type="checkbox" defaultChecked={index.getIsKey()} className="m-2" id={"isKey" + index.getId()} onClick={(event) => changeKey(index, event)}/></td>)
     const dataTypeDropdowns = indexes.map(index => <td className="border-2" key={index.getId()}><label htmlFor={index.getId() + "type"}>Type:</label><select id={index.getId() + "type"} className="text-center bg-dark-blue border-2 m-4" onChange={(event) => changeType(index, event)}>{acceptedTypes}</select></td>)
-    const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.getId()}><WarningButton text="Delete Index" clicked={() => {deleteIndex(index)}}/></td>})
+    const deleteButtons = indexes.map(index => {return <td className="border-2" key={index.getId()}><WarningButton clicked={() => {deleteIndex(index)}}>Delete Index</WarningButton></td>})
 
     function getDefaultIndexes() {
         setIdPointer(idPointer + 2);
@@ -123,7 +123,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
         <div>
             <p className="text-xl font-bold underline">New Object Store Setup</p>
             <p className="pt-5 pb-10">Use the interface below to create a new object store to hold records. Object stores need at least one key and at least 2 indexes</p>
-            {<SubmitButton text="Create Index" clicked={newIndex}/>}
+            {<SubmitButton clicked={newIndex}>Create Index</SubmitButton>}
             <div className="p-10">
                 <table className="table-fixed border-4">
                     <thead>
@@ -147,7 +147,7 @@ export default function ObjectStoreCreation({newObjectStore}: {newObjectStore: (
             <div>
                 <SuccessMessage success={creationMessage?.success} text={creationMessage?.text}/>
                 <input className="text-center m-4 border-4 w-1/4" placeholder="Enter name..." id="objectStoreName" type="text" />
-                <SubmitButton text="Create Object Store" clicked={() => {exportIndexes()}}/>
+                <SubmitButton clicked={() => {exportIndexes()}}>Create Object Store</SubmitButton>
             </div>
         </div>
     )

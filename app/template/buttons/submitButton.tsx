@@ -3,8 +3,10 @@
 import { ReactNode } from "react"
 import Button from "./button"
 
-export default function SubmitButton({text, clicked}: {text: ReactNode, clicked?: () => void}) { // Red delete button
+export default function SubmitButton({clicked, children}: {clicked?: () => void, children?: ReactNode}) { // Red delete button
     return (
-        <Button text={text} clicked={clicked} classAdd="bg-green-700 hover:bg-green-800 active:bg-green-900"/>
+        <Button clicked={clicked} classAdd="bg-green-700 hover:bg-green-800 active:bg-green-900">
+            {children}
+        </Button>
     )
 }

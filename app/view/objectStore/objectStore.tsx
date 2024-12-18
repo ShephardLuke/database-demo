@@ -69,8 +69,10 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
                 console.warn(this.name + " is from a different database version (" + databaseMetadata._version + "). Attempting to update...")
 
                 let updated = false;
-                switch (databaseMetadata._version) { // Updates
-                    case ("0.7.0-alpha.2"):
+
+                const skippedVersions = ["0.7.0", "0.7.1"]; // Maybe too manual, might be a better way but this works
+
+                if (databaseMetadata._version === "0.7.0-alpha.2") {
                         const mKeys = Object.keys(this.metadata)
                         const mValues = Object.values(this.metadata);
                         for (let i = 0; i <= mValues.length; i++) {
@@ -80,7 +82,8 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
                         }
                         this.updateRecords();
                         updated = true;
-                        break;
+                } else if (skippedVersions.includes(databaseMetadata._version)) {
+                    updated = true;
                 }
                 
                 if (updated) {
@@ -180,6 +183,7 @@ export class ObjectStore { // Class to hold all of the info when requesting an o
         console.log("Regenerated record '" + Object.values(record) + "'.");
         this.source.delete((path.length > 1 ? path : path[0]) as IDBValidKey);
         this.source.add(newRecord);
+        this.records[this.records.indexOf(record)] = newRecord;
     }
 
     setRecords(records: {[key: string]: unknown}[]) {

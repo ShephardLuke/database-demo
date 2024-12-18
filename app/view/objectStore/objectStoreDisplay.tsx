@@ -42,7 +42,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
     recordRows.push(
         <tr className="border-2" key={recordRows.length}>
             {inputs}
-            <td><SubmitButton key={"new"} text="Create Record" clicked={newRecord}/></td>
+            <td><SubmitButton key={"new"} clicked={newRecord}>Create Record</SubmitButton></td>
         </tr>
     )
 
@@ -165,8 +165,8 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
             <p className="text-xl font-bold underline pb-5">{objectStore.getName()}</p>
 
             <div className="flex gap-4 justify-center">
-                <WarningButton text="Delete Object Store" clicked={() => deleteObjectStore(objectStore)}/>
-                <SubmitButton text="Export to CSV" clicked={createCSV}/>
+                <WarningButton clicked={() => deleteObjectStore(objectStore)}>Delete Object Store</WarningButton>
+                <SubmitButton clicked={createCSV}>Export to CSV</SubmitButton>
             </div>
             <div className="pt-5">
                 <label htmlFor="showTypes">Show Types: </label>

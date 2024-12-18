@@ -28,7 +28,7 @@ export default function Record({indexOrderTypes, data, deleteRecord, showTypes}:
                 }
             )}
             <td className="border-2">
-                <WarningButton text="Delete Record" clicked={() => {deleteRecord(data)}}/>
+                <WarningButton clicked={() => {deleteRecord(data)}}>Delete Record</WarningButton>
             </td>
         </tr>
     )

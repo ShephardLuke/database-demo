@@ -58,11 +58,13 @@ export default function DatabaseLink({database, deleteDatabase}: {database: IDBD
             </td>
             <td className="border-2">
                 <Link className="hover:text-white" href={{pathname: "/view", query: {database: database.name}}}>
-                    <Button text="Open Database" clicked={() => {}}/>
+                    <Button clicked={() => {}}>
+                        Open Database
+                    </Button>
                 </Link>
             </td>
             <td>
-                <WarningButton text="Delete Database" clicked={() => {deleteDatabase(database)}}/>
+                <WarningButton clicked={() => {deleteDatabase(database)}}>Delete Database</WarningButton>
             </td>
         </tr>
     )

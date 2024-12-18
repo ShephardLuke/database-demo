@@ -29,8 +29,8 @@ export default function DatabaseDisplay() {
 
     const [currentObjectStore, setCurrentObjectStore]  = useState<number | null>(null);
 
-    const objectStoreSelects = objectStores.map(store => {return <Button key={store.getName()} text={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}/>});
-    objectStoreSelects.unshift(<SubmitButton key={-1} text={"New Object Store"} clicked={() => {setCurrentObjectStore(-1)}}/>)
+    const objectStoreSelects = objectStores.map(store => {return <Button key={store.getName()} clicked={() => {setCurrentObjectStore(objectStores.indexOf(store))}}>{store.getName()}</Button>});
+    objectStoreSelects.unshift(<SubmitButton key={-1} clicked={() => {setCurrentObjectStore(-1)}}>New Object Store</SubmitButton>)
     
     let errorMessage = <></>;
 

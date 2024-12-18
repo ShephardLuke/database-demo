@@ -121,7 +121,7 @@ export default function AllDatabases() { // Displaying every database allowing t
             <div className="p-10 text-center">
                 <SuccessMessage success={creationResult?.success} text={creationResult?.text}/>
                 <input className="text-center m-2 border-4 w-1/4" id="inputDatabaseName" placeholder="Enter Name..." />
-                <SubmitButton text="Create Database" clicked={newDatabase}/>
+                <SubmitButton clicked={newDatabase}>Create Database</SubmitButton>
             </div>
         </div>
     )
