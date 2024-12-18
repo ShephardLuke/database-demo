@@ -76,6 +76,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
                 const dataValue = DataValue.createFromString(value, types[i]);
                 if (dataValue == false) {
                     setCreationMessage({success: false, text: "Index " + indexOrder[i] + " must be a value of type " + types[i] + ", got " + DataValue.decideType(value) + "."});
+                    db.close();
                     return;
                 }
                 if (dataValue.isNull() && dbObjectStore.autoIncrement && keys.includes(indexOrder[i])) {
@@ -83,6 +84,7 @@ export default function ObjectStoreDisplay({objectStore, deleteObjectStore}: {ob
                 }
                 if (dataValue.isNull() && keys.includes(indexOrder[i])) {
                     setCreationMessage({success: false, text: "Key " + indexOrder[i] + " must contain at least 1 non-space character."});
+                    db.close();
                     return;
                 }
                 
